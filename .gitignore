@@ -1,0 +1,16 @@
+# Pastas de Build e Binários
+
+[Bb]in/
+[Oo]bj/
+
+# Pastas específicas do Visual Studio
+.vs/
+
+# Outros arquivos temporários
+*.user
+*.userosscache
+*.sln.docstates
+
+#User secrets e configurações locais
+appsettings.Development.json
+appsettings.Local.json
