@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="MwSolucoes.Communication/MwSolucoes.Communication.csproj" Id="35de8dcf-de8a-4bc3-bc59-39416b8b1b69" />
   <Project Path="MwSolucoes.Exception/MwSolucoes.Exception.csproj" Id="f3c854f1-f6fd-4d83-8501-e94c84a883da" />
   <Project Path="MwSolucoesApi/MwSolucoes.Api.csproj" />
 </Solution>
