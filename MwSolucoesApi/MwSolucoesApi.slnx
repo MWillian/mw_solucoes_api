@@ -1,5 +1,8 @@
 <Solution>
+  <Project Path="MwSolucoes.Application/MwSolucoes.Application.csproj" Id="6b0ac53a-6ee9-45e1-87cb-926ff061252a" />
   <Project Path="MwSolucoes.Communication/MwSolucoes.Communication.csproj" Id="35de8dcf-de8a-4bc3-bc59-39416b8b1b69" />
+  <Project Path="MwSolucoes.Domain/MwSolucoes.Domain.csproj" Id="3d809cd3-beec-40f9-9d73-6473e338b308" />
   <Project Path="MwSolucoes.Exception/MwSolucoes.Exception.csproj" Id="f3c854f1-f6fd-4d83-8501-e94c84a883da" />
+  <Project Path="MwSolucoes.Infrastructure/MwSolucoes.Infrastructure.csproj" Id="d0d6ccce-8ef8-4bbe-8343-67e31f33874f" />
   <Project Path="MwSolucoesApi/MwSolucoes.Api.csproj" />
 </Solution>
