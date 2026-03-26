@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MwSolucoes.Communication\MwSolucoes.Communication.csproj" />
     <ProjectReference Include="..\MwSolucoes.Exception\MwSolucoes.Exception.csproj" />
     <ProjectReference Include="..\MwSolucoes.Infrastructure\MwSolucoes.Infrastructure.csproj" />
