@@ -4,9 +4,8 @@ namespace MwSolucoes.Api.Controllers.Usuarios
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuariosController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IUsuarioService _usuarioService;
 
     }
 }

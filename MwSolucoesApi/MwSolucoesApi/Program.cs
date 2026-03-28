@@ -18,14 +18,21 @@ try
     builder.Services.AddInfrastructure(builder.Configuration, connectionString!);
 
     builder.Services.AddControllers();
-    builder.Services.AddOpenApi();
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
     builder.Services.AddMvc(options => options.Filters.Add<ExceptionFilter>());
 
     var app = builder.Build();
 
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "MwSolucoes API v1");
+        });
     }
 
     app.UseHttpsRedirection();

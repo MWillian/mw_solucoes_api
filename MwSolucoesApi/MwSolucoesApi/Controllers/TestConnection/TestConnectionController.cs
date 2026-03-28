@@ -28,7 +28,7 @@ namespace MwSolucoes.Api.Controllers.TestConnection
             }
             catch (System.Exception ex)
             {
-                return StatusCode(500, new { status = "Falha Crítica", error = ex.Message });
+                return StatusCode(500, new { status = "Falha interna do servidor.", error = ex.Message });
             }
         }
     }
