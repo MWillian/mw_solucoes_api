@@ -93,6 +93,5 @@ namespace MwSolucoes.Domain.Entities
             user.IsActive = false;
             return true;
         }
-
     }
 }

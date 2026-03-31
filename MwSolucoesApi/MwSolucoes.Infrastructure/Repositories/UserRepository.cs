@@ -27,7 +27,7 @@ namespace MwSolucoes.Infrastructure.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
-        public async Task<bool?> ExistUserWithEmail(string email)
+        public async Task<bool> ExistUserWithEmail(string email)
         {
             return await _context.Users.AnyAsync(u => u.Email.Equals(email));
         }

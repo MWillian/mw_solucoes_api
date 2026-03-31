@@ -62,11 +62,29 @@ namespace MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A senha de confirmação não é igual a senha digitada..
+        /// </summary>
+        public static string DIFERENT_PASSWORDS {
+            get {
+                return ResourceManager.GetString("DIFERENT_PASSWORDS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a O e-mail inserido já está em uso..
         /// </summary>
         public static string EMAIL_ALREADY_REGISTERED {
             get {
                 return ResourceManager.GetString("EMAIL_ALREADY_REGISTERED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O telefone inserido já está em uso..
+        /// </summary>
+        public static string PHONE_NUMBER_ALREADY_REGISTERED {
+            get {
+                return ResourceManager.GetString("PHONE_NUMBER_ALREADY_REGISTERED", resourceCulture);
             }
         }
     }

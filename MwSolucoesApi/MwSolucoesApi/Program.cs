@@ -1,7 +1,9 @@
 using MwSolucoes.Api.Filters;
+using MwSolucoes.Application;
 using MwSolucoes.Infrastructure;
 
 using Serilog;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ try
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddInfrastructure(builder.Configuration, connectionString!);
+    builder.Services.AddApplication();
 
     builder.Services.AddControllers();
 

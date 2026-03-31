@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MwSolucoes.Domain.Repositories;
+using MwSolucoes.Domain.Security;
 using MwSolucoes.Infrastructure.Data;
 using MwSolucoes.Infrastructure.Repositories;
+using MwSolucoes.Infrastructure.Security;
 
 namespace MwSolucoes.Infrastructure
 {
@@ -13,6 +15,7 @@ namespace MwSolucoes.Infrastructure
         {
             AddDbConnection(services, connectionString);
             AddRepositories(services);
+            AddPasswordEncrypter(services);
         }
 
         private static void AddDbConnection(IServiceCollection services, string connectionString)
@@ -24,6 +27,10 @@ namespace MwSolucoes.Infrastructure
         {
             services.AddScoped<IUserRepository, UserRepository>();
 
+        }
+        public static void AddPasswordEncrypter(IServiceCollection services)
+        {
+            services.AddScoped<IPasswordEncrypter, Bcrypter>();
         }
     }
 }

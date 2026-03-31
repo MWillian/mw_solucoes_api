@@ -136,10 +136,13 @@
     <value>Nome de usuário está vazio.</value>
   </data>
   <data name="INVALID_CPF" xml:space="preserve">
-    <value>CPD do usuário está inválido.</value>
+    <value>CPF do usuário está inválido.</value>
   </data>
   <data name="INVALID_EMAIL" xml:space="preserve">
     <value>O endereço de e-mail está inválido.</value>
+  </data>
+  <data name="INVALID_PASSWORD" xml:space="preserve">
+    <value>Senha inválida.</value>
   </data>
   <data name="INVALID_PHONE_NUMBER" xml:space="preserve">
     <value>Número de celular do usuário está inválido.</value>

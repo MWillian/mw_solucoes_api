@@ -115,7 +115,7 @@ namespace MwSolucoes.Exception.ResouceErrors.DomainErrorMessages {
         }
         
         /// <summary>
-        ///   Consulta uma cadeia de caracteres localizada semelhante a CPD do usuário está inválido..
+        ///   Consulta uma cadeia de caracteres localizada semelhante a CPF do usuário está inválido..
         /// </summary>
         public static string INVALID_CPF {
             get {
@@ -129,6 +129,15 @@ namespace MwSolucoes.Exception.ResouceErrors.DomainErrorMessages {
         public static string INVALID_EMAIL {
             get {
                 return ResourceManager.GetString("INVALID_EMAIL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Senha inválida..
+        /// </summary>
+        public static string INVALID_PASSWORD {
+            get {
+                return ResourceManager.GetString("INVALID_PASSWORD", resourceCulture);
             }
         }
         

@@ -1,6 +1,6 @@
 ﻿namespace MwSolucoes.Communication.Responses.User
 {
-    public class RegisterUserResponse
+    public class ResponseRegisterUser
     {
         public string Name { get; set; } = string.Empty;
     }
