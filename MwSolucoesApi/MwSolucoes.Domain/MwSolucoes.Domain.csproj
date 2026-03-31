@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MwSolucoes.Exception\MwSolucoes.Exception.csproj" />
+  </ItemGroup>
+
 </Project>

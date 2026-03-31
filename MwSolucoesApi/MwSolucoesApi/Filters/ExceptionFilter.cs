@@ -29,7 +29,7 @@ namespace MwSolucoes.Api.Filters
         }
         private void ThrowUnknownError(ExceptionContext context)
         {
-            var errorResponse = new ResponseError(ResouceErrorMessages.INTERNAL_ERROR);
+            var errorResponse = new ResponseError(ResourceErrorMessages.INTERNAL_ERROR);
             context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Result = new ObjectResult(errorResponse);
         }

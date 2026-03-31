@@ -7,17 +7,53 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Update="ResouceErrors\ResouceErrorMessages.Designer.cs">
+    <Compile Update="ResouceErrors\DomainErroMessages\UserErrorMessages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>ResouceErrorMessages.resx</DependentUpon>
+      <DependentUpon>UserErrorMessages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="ResouceErrors\DomainErrorMessages\UserErrorMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserErrorMessages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="ResouceErrors\ResourceErrorMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ResourceErrorMessages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="ResouceErrors\UseCaseErrorMessages\CreateUserErrorMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CreateUserErrorMessages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="ResouceErrors\UseCaseErrorMessages\RegisterUserErrorMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegisterUserErrorMessages.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="ResouceErrors\ResouceErrorMessages.resx">
+    <EmbeddedResource Update="ResouceErrors\DomainErroMessages\UserErrorMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="ResouceErrors\DomainErrorMessages\UserErrorMessages.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>ResouceErrorMessages.Designer.cs</LastGenOutput>
+      <LastGenOutput>UserErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="ResouceErrors\ResourceErrorMessages.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourceErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="ResouceErrors\UseCaseErrorMessages\CreateUserErrorMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CreateUserErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="ResouceErrors\UseCaseErrorMessages\RegisterUserErrorMessages.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>RegisterUserErrorMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 
