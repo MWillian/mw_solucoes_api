@@ -1,6 +1,6 @@
-﻿using MwSolucoes.Domain.Security;
+﻿using MwSolucoes.Domain.Security.Cryptography;
 
-namespace MwSolucoes.Infrastructure.Security
+namespace MwSolucoes.Infrastructure.Security.Cryptography
 {
     public class Bcrypter : IPasswordEncrypter
     {
