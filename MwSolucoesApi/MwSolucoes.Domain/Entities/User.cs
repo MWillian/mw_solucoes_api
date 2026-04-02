@@ -8,24 +8,35 @@ namespace MwSolucoes.Domain.Entities
 {
     public class User
     {
-        public User(string name, string email, string password, string phoneNumber, string cpf, string role)
+        private User() { }
+
+        public User(string name, string email, string password, string phoneNumber, string cpf, int role, Address address)
         {
-            Validate(name, email, password, phoneNumber, cpf, role);
+            Validate(name, email, password, phoneNumber, cpf, role, address);
+            Id = Guid.NewGuid();
             Name = name;
             Email = email;
             PasswordHash = password;
         }
 
-        public Guid Id { get; private set; } = new Guid();
+        public Guid Id { get; private set; }
+
         public string Name { get; private set; } = string.Empty;
+
         public string Email { get; private set; } = string.Empty;
+
         public string PasswordHash { get; private set; } = string.Empty;
+
         public PhoneNumber PhoneNumber { get; private set; }
+
         public Cpf CPF { get; private set; }
+
         public UserRoles Role { get; private set; } = UserRoles.Cliente;
+
         public bool IsActive { get; private set; } = true;
 
-        public void Validate(string name, string email, string password, string phoneNumber, string cpf, string role)
+        public Address Address { get; private set; }
+        public void Validate(string name, string email, string password, string phoneNumber, string cpf, int role, Address address)
         {
             ValidateName(name);
             ValidateEmail(email);
@@ -33,12 +44,13 @@ namespace MwSolucoes.Domain.Entities
             ValidatePhoneNumber(phoneNumber);
             ValidateCpf(cpf);
             ValidateRole(role);
+            ValidateAddress(address);
         }
 
         // Validate Methods
         private void ValidateName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name) || name.Length < 2)
             {
                 throw new DomainException(UserErrorMessages.EMPTY_USERNAME);
             }
@@ -70,17 +82,23 @@ namespace MwSolucoes.Domain.Entities
         {
             CPF = new Cpf(cpf);
         }
-        private void ValidateRole(string role)
+        private void ValidateRole(int role)
         {
-            if (string.IsNullOrWhiteSpace(role))
-            {
-                throw new DomainException(UserErrorMessages.EMPTY_ROLE);
-            }
-            if (!Enum.TryParse<UserRoles>(role, true, out var parsedRole))
+            if (!Enum.IsDefined(typeof(UserRoles), role))
             {
                 throw new DomainException(UserErrorMessages.INVALID_ROLE);
             }
-            Role = parsedRole;
+
+            Role = (UserRoles)role;
+        }
+        private void ValidateAddress(Address address)
+        {
+            if (address is null)
+            {
+                throw new DomainException("Endereço é obrigatório.");
+            }
+
+            Address = address;
         }
 
         // Helper Methods

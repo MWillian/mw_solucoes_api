@@ -123,6 +123,9 @@
   <data name="EMAIL_ALREADY_REGISTERED" xml:space="preserve">
     <value>O e-mail inserido já está em uso.</value>
   </data>
+  <data name="INVALID_CEP" xml:space="preserve">
+    <value>O CEP informado é inválido.</value>
+  </data>
   <data name="PHONE_NUMBER_ALREADY_REGISTERED" xml:space="preserve">
     <value>O telefone inserido já está em uso.</value>
   </data>

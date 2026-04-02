@@ -2,8 +2,10 @@
 using MwSolucoes.Application.UseCases.User.RegisterUser;
 using MwSolucoes.Communication.Requests;
 using MwSolucoes.Communication.Responses.User;
+using MwSolucoes.Domain.CepValidation;
 using MwSolucoes.Domain.Repositories;
-using MwSolucoes.Domain.Security;
+using MwSolucoes.Domain.Security.Cryptography;
+using MwSolucoes.Domain.Security.Tokens;
 using MwSolucoes.Exception.ExceptionBase;
 using MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages;
 
@@ -13,29 +15,28 @@ namespace MwSolucoes.Application.UseCases.User.Register
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordEncrypter _passwordEncrypter;
-        public RegisterUserUseCase(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter)
+        private readonly ICepValidator _cepValidator;
+        private readonly ITokenGenerator _tokenGenerator;
+
+        public RegisterUserUseCase(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ICepValidator cepValidator, ITokenGenerator tokenGenerator)
         {
             _userRepository = userRepository;
             _passwordEncrypter = passwordEncrypter;
+            _cepValidator = cepValidator;
+            _tokenGenerator = tokenGenerator;
         }
         public async Task<ResponseRegisterUser> Execute(RequestRegisterUser request)
         {
-            await ValidateRequest(request);
-
+            await ValidateExistingUser(request);
+            await ValidateCep(request.Cep);
             var passwordHash = _passwordEncrypter.Encrypt(request.Password);
-            var user = UserMapper.ToUser(request,passwordHash);
+
+            var user = UserMapper.ToUser(request, passwordHash);
 
             await _userRepository.Add(user);
 
-            var response = UserMapper.ToResponseRegisterUser(user);
+            return UserMapper.ToResponseRegisterUser(user, _tokenGenerator);
 
-            return response;
-        }
-        public async Task ValidateRequest(RequestRegisterUser request)
-        {
-            RegisterUserValidator.Validate(request);
-            await ValidateExistingUser(request);
-                
         }
         private async Task ValidateExistingUser(RequestRegisterUser request)
         {
@@ -43,6 +44,11 @@ namespace MwSolucoes.Application.UseCases.User.Register
             if (existingUserByEmail == true) throw new RequestConflictException(RegisterUserErrorMessages.EMAIL_ALREADY_REGISTERED);
             var existingUserByPhone = await _userRepository.ExistUserWithPhoneNumber(request.PhoneNumber);
             if (existingUserByPhone) throw new RequestConflictException(RegisterUserErrorMessages.PHONE_NUMBER_ALREADY_REGISTERED);
+        }
+        private async Task ValidateCep(string cep)
+        {
+            var cepValidationResult = await _cepValidator.IsValidCepAsync(cep);
+            if (cepValidationResult == false) throw new RequestConflictException(RegisterUserErrorMessages.INVALID_CEP);
         }
     }
 }

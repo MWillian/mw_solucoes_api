@@ -1,4 +1,4 @@
-﻿namespace MwSolucoes.Domain.Security
+﻿namespace MwSolucoes.Domain.Security.Cryptography
 {
     public interface IPasswordEncrypter
     {

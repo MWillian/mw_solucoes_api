@@ -80,6 +80,15 @@ namespace MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O CEP informado é inválido..
+        /// </summary>
+        public static string INVALID_CEP {
+            get {
+                return ResourceManager.GetString("INVALID_CEP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a O telefone inserido já está em uso..
         /// </summary>
         public static string PHONE_NUMBER_ALREADY_REGISTERED {
