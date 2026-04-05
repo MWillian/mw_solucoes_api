@@ -14,3 +14,4 @@
 #User secrets e configurações locais
 appsettings.Development.json
 appsettings.Local.json
+.github/*

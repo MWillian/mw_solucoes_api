@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
 using MwSolucoes.Infrastructure;
@@ -46,20 +47,9 @@ try
     builder.Services.AddControllers();
 
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-
     builder.Services.AddMvc(options => options.Filters.Add<ExceptionFilter>());
 
     var app = builder.Build();
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "MwSolucoes API v1");
-        });
-    }
 
     app.UseHttpsRedirection();
 

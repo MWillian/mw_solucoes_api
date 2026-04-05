@@ -21,6 +21,7 @@ namespace MwSolucoes.Infrastructure.Data
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Role).IsRequired();
                 entity.Property(e => e.IsActive).IsRequired();
+                entity.HasIndex(e => e.Email).IsUnique();
 
                 entity.Property(e => e.PhoneNumber)
                     .HasConversion(
@@ -28,6 +29,7 @@ namespace MwSolucoes.Infrastructure.Data
                         value => new Domain.ValueObjects.PhoneNumber(value))
                     .HasMaxLength(11)
                     .IsRequired();
+                entity.HasIndex(e => e.PhoneNumber).IsUnique();
 
                 entity.Property(e => e.CPF)
                     .HasConversion(
