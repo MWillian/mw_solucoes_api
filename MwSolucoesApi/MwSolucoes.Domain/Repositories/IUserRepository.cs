@@ -1,4 +1,5 @@
 ﻿using MwSolucoes.Domain.Entities;
+using MwSolucoes.Domain.Repositories.Filters;
 
 namespace MwSolucoes.Domain.Repositories
 {
@@ -7,6 +8,7 @@ namespace MwSolucoes.Domain.Repositories
         Task Add(User user);
         Task<User?> GetByEmail(string email);
         Task<User?> GetById(Guid id);
+        Task<PagedResult<User>> GetUsers(UserFilters filters);
         Task Update(User user);
         Task<bool> ExistUserWithEmail(string email);
         Task<bool> ExistUserWithPhoneNumber(string phoneNumber);

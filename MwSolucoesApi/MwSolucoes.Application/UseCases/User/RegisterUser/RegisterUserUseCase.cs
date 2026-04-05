@@ -6,6 +6,7 @@ using MwSolucoes.Domain.CepValidation;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
 using MwSolucoes.Domain.Security.Tokens;
+using MwSolucoes.Domain.ValueObjects;
 using MwSolucoes.Exception.ExceptionBase;
 using MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages;
 
@@ -42,7 +43,9 @@ namespace MwSolucoes.Application.UseCases.User.Register
         {
             var existingUserByEmail = await _userRepository.ExistUserWithEmail(request.Email);
             if (existingUserByEmail == true) throw new RequestConflictException(RegisterUserErrorMessages.EMAIL_ALREADY_REGISTERED);
-            var existingUserByPhone = await _userRepository.ExistUserWithPhoneNumber(request.PhoneNumber);
+
+            var normalizedPhoneNumber = new PhoneNumber(request.PhoneNumber).Number;
+            var existingUserByPhone = await _userRepository.ExistUserWithPhoneNumber(normalizedPhoneNumber);
             if (existingUserByPhone) throw new RequestConflictException(RegisterUserErrorMessages.PHONE_NUMBER_ALREADY_REGISTERED);
         }
         private async Task ValidateCep(string cep)

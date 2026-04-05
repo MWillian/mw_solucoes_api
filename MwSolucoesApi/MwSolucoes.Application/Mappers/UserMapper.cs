@@ -21,5 +21,23 @@ namespace MwSolucoes.Application.Mappers
             var address = new Address(request.Logradouro, request.Numero, request.Bairro, request.Cidade, request.Estado, request.Cep);
             return new User(request.Name, request.Email, passwordHash, request.PhoneNumber, request.Cpf, request.Role, address);
         }
+        public static ResponseGetUser ToResponseGetUser(User user)
+        {
+            return new ResponseGetUser
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Address = user.Address,
+                Cpf = user.CPF,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            };
+        }
+        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(PagedResult<User> users)
+        {
+            var responseItems = users.Items.Select(ToResponseGetUser).ToList();
+            Communication.Responses.PagedResult<ResponseGetUser> result = new(responseItems, users.TotalCount, users.CurrentPage, users.PageSize);
+            return result;
+        }
     }
 }

@@ -25,4 +25,9 @@
     <ProjectReference Include="..\MwSolucoes.Infrastructure\MwSolucoes.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Auth\" />
+    <Folder Include="Controllers\MaintanenceServices\" />
+  </ItemGroup>
+
 </Project>
