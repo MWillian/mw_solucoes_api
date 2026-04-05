@@ -102,14 +102,13 @@ namespace MwSolucoes.Domain.Entities
         }
 
         // Helper Methods
-        public bool Deactivate(User user)
+        public void Deactivate(User user)
         {
             if (!user.IsActive)
             {
                 throw new DomainException(UserErrorMessages.USER_ALREADY_INACTIVE);
             }
             user.IsActive = false;
-            return true;
         }
     }
 }

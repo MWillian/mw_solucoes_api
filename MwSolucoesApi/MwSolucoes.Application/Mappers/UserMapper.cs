@@ -39,5 +39,22 @@ namespace MwSolucoes.Application.Mappers
             Communication.Responses.PagedResult<ResponseGetUser> result = new(responseItems, users.TotalCount, users.CurrentPage, users.PageSize);
             return result;
         }
+
+        public static ResponseUpdateUser ToResponseUpdateUser(User user)
+        {
+            return new ResponseUpdateUser
+            {
+                Name = user.Name,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Cpf = user.CPF,
+                Logradouro = user.Address.Logradouro,
+                Numero = user.Address.Numero,
+                Bairro = user.Address.Bairro,
+                Cidade = user.Address.Cidade,
+                Estado = user.Address.Estado,
+                Cep = user.Address.Cep
+            };
+        }
     }
 }
