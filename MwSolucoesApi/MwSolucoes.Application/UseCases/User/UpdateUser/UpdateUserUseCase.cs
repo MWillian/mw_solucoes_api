@@ -18,8 +18,8 @@ namespace MwSolucoes.Application.UseCases.User.UpdateUser
         {
             var user = await _userRepository.GetById(id);
             if (user is null) throw new NotFoundException("Usuário não encontrado.");
-            var updatedUser = await _userRepository.Update(user);
-            return UserMapper.ToResponseUpdateUser();
+            await _userRepository.Update(user);
+            return UserMapper.ToResponseUpdateUser(user);
         }
     }
 }

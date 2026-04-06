@@ -33,6 +33,8 @@ namespace MwSolucoes.Domain.Entities
 
         public UserRoles Role { get; private set; } = UserRoles.Cliente;
 
+        public AccessLevels AccessLevel { get; private set; } = AccessLevels.Comum;
+
         public bool IsActive { get; private set; } = true;
 
         public Address Address { get; private set; }

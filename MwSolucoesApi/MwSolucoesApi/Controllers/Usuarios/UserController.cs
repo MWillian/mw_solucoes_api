@@ -38,7 +38,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             return Ok(user);
         }
 
-        [Authorize] //implementar verificação de admin na consulta via guid
+        [Authorize(Policy = "AdminAccess")]
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status404NotFound)]
@@ -77,7 +77,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             return Ok();
         }
 
-        [Authorize] //implementar verificação de admin na consulta via guid
+        [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
