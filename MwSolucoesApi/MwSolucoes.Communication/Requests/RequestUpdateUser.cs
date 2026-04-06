@@ -21,6 +21,9 @@ namespace MwSolucoes.Communication.Requests
         [StringLength(14, MinimumLength = 11, ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "INVALID_CPF")]
         public string Cpf { get; set; } = string.Empty;
 
+        [Required(ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "EMPTY_ROLE")]
+        public int Role { get; set; }
+
         [Required]
         public string Logradouro { get; set; } = string.Empty;
 

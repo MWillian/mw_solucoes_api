@@ -18,8 +18,15 @@ namespace MwSolucoes.Application.UseCases.User.UpdateUser
         {
             var user = await _userRepository.GetById(id);
             if (user is null) throw new NotFoundException("Usuário não encontrado.");
+            UpdateUserFields(user, request);
             await _userRepository.Update(user);
             return UserMapper.ToResponseUpdateUser(user);
+        }
+
+        private void UpdateUserFields(Domain.Entities.User user, RequestUpdateUser request)
+        {
+            var address = new Domain.ValueObjects.Address(request.Logradouro, request.Numero, request.Bairro, request.Cidade, request.Estado, request.Cep);
+            user.UpdateUser(request.Name, request.Email, request.PhoneNumber, request.Cpf, request.Role, address);
         }
     }
 }

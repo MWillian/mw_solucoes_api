@@ -53,7 +53,8 @@ namespace MwSolucoes.Application.Mappers
                 Bairro = user.Address.Bairro,
                 Cidade = user.Address.Cidade,
                 Estado = user.Address.Estado,
-                Cep = user.Address.Cep
+                Cep = user.Address.Cep,
+                Role = (int)user.Role
             };
         }
     }

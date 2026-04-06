@@ -67,20 +67,20 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [Authorize]
         [HttpPut("me")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status200OK)]
         public async Task<IActionResult> Update([FromServices] IUpdateUserUseCase useCase, [FromBody] RequestUpdateUser request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
             var updatedUser = await useCase.Execute(userId, request);
-            return Ok();
+            return Ok(updatedUser);
         }
 
         [Authorize(Policy = "AdminAccess")]
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteUser([FromServices] IDeleteUserUseCase useCase, [FromRoute] Guid id)
         {
@@ -93,7 +93,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [Authorize]
         [HttpDelete("me")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteMe([FromServices] IDeleteUserUseCase useCase)
         {
