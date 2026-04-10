@@ -1,4 +1,5 @@
 ﻿using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Security.Tokens;
@@ -11,6 +12,14 @@ namespace MwSolucoes.Application.Mappers
         public static ResponseRegisterUser ToResponseRegisterUser(User user, ITokenGenerator generatedToken)
         {
             return new ResponseRegisterUser
+            {
+                Name = user.Name,
+                Token = generatedToken.GenerateToken(user)
+            };
+        }
+        public static ResponseLogin ToResponseLogin(User user, ITokenGenerator generatedToken)
+        {
+            return new ResponseLogin
             {
                 Name = user.Name,
                 Token = generatedToken.GenerateToken(user)
@@ -33,11 +42,29 @@ namespace MwSolucoes.Application.Mappers
                 PhoneNumber = user.PhoneNumber
             };
         }
-        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(PagedResult<User> users)
+        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(Domain.Entities.PagedResult<User> users)
         {
             var responseItems = users.Items.Select(ToResponseGetUser).ToList();
             Communication.Responses.PagedResult<ResponseGetUser> result = new(responseItems, users.TotalCount, users.CurrentPage, users.PageSize);
             return result;
+        }
+
+        public static ResponseUpdateUser ToResponseUpdateUser(User user)
+        {
+            return new ResponseUpdateUser
+            {
+                Name = user.Name,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Cpf = user.CPF,
+                Logradouro = user.Address.Logradouro,
+                Numero = user.Address.Numero,
+                Bairro = user.Address.Bairro,
+                Cidade = user.Address.Cidade,
+                Estado = user.Address.Estado,
+                Cep = user.Address.Cep,
+                Role = (int)user.Role
+            };
         }
     }
 }

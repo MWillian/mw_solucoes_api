@@ -18,7 +18,6 @@ namespace MwSolucoes.Domain.Entities
             Email = email;
             PasswordHash = password;
         }
-
         public Guid Id { get; private set; }
 
         public string Name { get; private set; } = string.Empty;
@@ -32,6 +31,8 @@ namespace MwSolucoes.Domain.Entities
         public Cpf CPF { get; private set; }
 
         public UserRoles Role { get; private set; } = UserRoles.Cliente;
+
+        public AccessLevels AccessLevel { get; private set; } = AccessLevels.Comum;
 
         public bool IsActive { get; private set; } = true;
 
@@ -101,15 +102,29 @@ namespace MwSolucoes.Domain.Entities
             Address = address;
         }
 
+        public void UpdateUser(string name, string email, string phoneNumber, string cpf, int role, Address address)
+        {
+            Validate(name, email, PasswordHash, phoneNumber, cpf, role, address);
+            Name = name;
+            Email = email;
+            PhoneNumber = new PhoneNumber(phoneNumber);
+            CPF = new Cpf(cpf);
+            Role = (UserRoles)role;
+            Address = address;
+        }
+        private void UpdateAccessLevel(AccessLevels accessLevel)
+        {
+            AccessLevel = accessLevel;
+        }   
+
         // Helper Methods
-        public bool Deactivate(User user)
+        public void Deactivate(User user)
         {
             if (!user.IsActive)
             {
                 throw new DomainException(UserErrorMessages.USER_ALREADY_INACTIVE);
             }
             user.IsActive = false;
-            return true;
         }
     }
 }

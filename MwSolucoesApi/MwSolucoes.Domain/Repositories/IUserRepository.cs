@@ -12,5 +12,7 @@ namespace MwSolucoes.Domain.Repositories
         Task Update(User user);
         Task<bool> ExistUserWithEmail(string email);
         Task<bool> ExistUserWithPhoneNumber(string phoneNumber);
+        Task<bool> ExistUserByCpf(string cpf);
+        Task<bool> IsActive(Guid id);
     }
 }

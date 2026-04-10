@@ -44,6 +44,10 @@ try
             };
         });
 
+    builder.Services.AddAuthorizationBuilder()
+        .AddPolicy("AdminAccess", policy =>
+            policy.RequireClaim("access_level", "Admin"));
+
     builder.Services.AddControllers();
 
     builder.Services.AddEndpointsApiExplorer();

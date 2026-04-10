@@ -82,8 +82,17 @@ namespace MwSolucoes.Infrastructure.Repositories
         }
         public async Task<bool> ExistUserWithPhoneNumber(string phoneNumber)
         {
-            var normalizedPhone = new PhoneNumber(phoneNumber).Number;
-            return await _context.Users.AnyAsync(u => EF.Property<string>(u, nameof(User.PhoneNumber)) == normalizedPhone);
+            return await _context.Users.AnyAsync(u => u.PhoneNumber == phoneNumber);
+        }
+        public async Task<bool> ExistUserByCpf(string cpf)
+        {
+            return await _context.Users.AnyAsync(u => u.CPF == cpf);
+        }
+
+        public async Task<bool> IsActive(Guid id)
+        {
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            return user != null && user.IsActive;
         }
     }
 }

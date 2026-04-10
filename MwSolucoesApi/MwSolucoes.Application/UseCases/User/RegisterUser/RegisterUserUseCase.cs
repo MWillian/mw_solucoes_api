@@ -47,8 +47,12 @@ namespace MwSolucoes.Application.UseCases.User.Register
             var normalizedPhoneNumber = new PhoneNumber(request.PhoneNumber).Number;
             var existingUserByPhone = await _userRepository.ExistUserWithPhoneNumber(normalizedPhoneNumber);
             if (existingUserByPhone) throw new RequestConflictException(RegisterUserErrorMessages.PHONE_NUMBER_ALREADY_REGISTERED);
+
+            var normalizedCpf = new Cpf(request.Cpf);
+            var existingUserByCpf = await _userRepository.ExistUserByCpf(normalizedCpf.Number);
+            if (existingUserByCpf) throw new RequestConflictException("Cpf já cadastrado no sistema.");
         }
-        private async Task ValidateCep(string cep)
+        private async Task ValidateCep(string cep)  
         {
             var cepValidationResult = await _cepValidator.IsValidCepAsync(cep);
             if (cepValidationResult == false) throw new RequestConflictException(RegisterUserErrorMessages.INVALID_CEP);

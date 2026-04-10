@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MwSolucoes.Application.UseCases.User.DeleteUser;
 using MwSolucoes.Application.UseCases.User.GetUser;
 using MwSolucoes.Application.UseCases.User.GetUsers;
 using MwSolucoes.Application.UseCases.User.RegisterUser;
@@ -37,13 +38,15 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             return Ok(user);
         }
 
-        [Authorize] //implementar verificação de admin na consulta via guid
+        [Authorize(Policy = "AdminAccess")]
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUser([FromRoute] Guid Id, [FromServices] IGetUserByIdUseCase useCase)
         {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
+            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
             var user = await useCase.Execute(Id);
             return Ok(user);
         }
@@ -64,14 +67,40 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [Authorize]
         [HttpPut("me")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Update([FromServices] IUpdateUserUseCase useCase)
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Update([FromServices] IUpdateUserUseCase useCase, [FromBody] RequestUpdateUser request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+            var updatedUser = await useCase.Execute(userId, request);
+            return Ok(updatedUser);
+        }
+
+        [Authorize(Policy = "AdminAccess")]
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteUser([FromServices] IDeleteUserUseCase useCase, [FromRoute] Guid id)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
+            if (!Guid.TryParse(userIdClaim, out var _)) return Unauthorized();
+            await useCase.Execute(id);
             return NoContent();
         }
 
+        [Authorize]
+        [HttpDelete("me")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> DeleteMe([FromServices] IDeleteUserUseCase useCase)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
+            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+            await useCase.Execute(userId);
+            return NoContent();
+        }
     }
 }
