@@ -102,6 +102,20 @@ namespace MwSolucoes.Domain.Entities
             Address = address;
         }
 
+        private void UpdateAccessLevel(AccessLevels accessLevel)
+        {
+            AccessLevel = accessLevel;
+        }
+
+        // Helper Methods
+        public void Deactivate(User user)
+        {
+            if (!user.IsActive)
+            {
+                throw new DomainException(UserErrorMessages.USER_ALREADY_INACTIVE);
+            }
+            user.IsActive = false;
+        }
         public void UpdateUser(string name, string email, string phoneNumber, string cpf, int role, Address address)
         {
             Validate(name, email, PasswordHash, phoneNumber, cpf, role, address);
@@ -112,19 +126,13 @@ namespace MwSolucoes.Domain.Entities
             Role = (UserRoles)role;
             Address = address;
         }
-        private void UpdateAccessLevel(AccessLevels accessLevel)
+        public void UpdatePassword(string newPasswordHash)
         {
-            AccessLevel = accessLevel;
-        }   
-
-        // Helper Methods
-        public void Deactivate(User user)
-        {
-            if (!user.IsActive)
+            if (string.IsNullOrWhiteSpace(newPasswordHash))
             {
-                throw new DomainException(UserErrorMessages.USER_ALREADY_INACTIVE);
+                throw new DomainException(UserErrorMessages.EMPTY_PASSWORD);
             }
-            user.IsActive = false;
+            PasswordHash = newPasswordHash;
         }
     }
 }
