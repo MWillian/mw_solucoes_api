@@ -22,8 +22,10 @@ namespace MwSolucoes.Application.UseCases.Auth
         }
         public async Task<ResponseLogin> Execute(RequestLogin request)
         {
-            var user = await _userRepository.GetByEmail(request.Email) ?? throw new InvalidLoginException("Usuário/Senha incorreta.");
+            var user = await _userRepository.GetByEmail(request.Email) ?? throw new NotFoundException("Usuário/Senha incorreta.");
             var isActiveUser = await _userRepository.IsActive(user.Id);
+            if (!isActiveUser)
+                throw new UnprocessableEntityException("Usuário inativo. Entre em contato com o administrador do sistema.");
             var passwordMatch = _passwordEncrypter.Verify(request.Password, user.PasswordHash);
             if (!passwordMatch) throw new InvalidLoginException("Usuário/Senha incorreta.");
             var response = UserMapper.ToResponseLogin(user, _tokenGenerator);
