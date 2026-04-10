@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.UseCases.Auth;
 using MwSolucoes.Communication.Requests;
 using MwSolucoes.Communication.Responses;
-using MwSolucoes.Communication.Responses.User;
 
 namespace MwSolucoes.Api.Controllers.Auth
 {
@@ -16,6 +15,7 @@ namespace MwSolucoes.Api.Controllers.Auth
         [ProducesResponseType(typeof(ResponseLogin), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Login([FromBody] RequestLogin request, [FromServices] ILoginUseCase loginUseCase)
         {
             var response = await loginUseCase.Execute(request);
