@@ -88,5 +88,11 @@ namespace MwSolucoes.Infrastructure.Repositories
         {
             return await _context.Users.AnyAsync(u => u.CPF == cpf);
         }
+
+        public async Task<bool> IsActive(Guid id)
+        {
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            return user != null && user.IsActive;
+        }
     }
 }

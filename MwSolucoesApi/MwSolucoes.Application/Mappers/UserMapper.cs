@@ -1,4 +1,5 @@
 ﻿using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Security.Tokens;
@@ -11,6 +12,14 @@ namespace MwSolucoes.Application.Mappers
         public static ResponseRegisterUser ToResponseRegisterUser(User user, ITokenGenerator generatedToken)
         {
             return new ResponseRegisterUser
+            {
+                Name = user.Name,
+                Token = generatedToken.GenerateToken(user)
+            };
+        }
+        public static ResponseLogin ToResponseLogin(User user, ITokenGenerator generatedToken)
+        {
+            return new ResponseLogin
             {
                 Name = user.Name,
                 Token = generatedToken.GenerateToken(user)
@@ -33,7 +42,7 @@ namespace MwSolucoes.Application.Mappers
                 PhoneNumber = user.PhoneNumber
             };
         }
-        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(PagedResult<User> users)
+        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(Domain.Entities.PagedResult<User> users)
         {
             var responseItems = users.Items.Select(ToResponseGetUser).ToList();
             Communication.Responses.PagedResult<ResponseGetUser> result = new(responseItems, users.TotalCount, users.CurrentPage, users.PageSize);

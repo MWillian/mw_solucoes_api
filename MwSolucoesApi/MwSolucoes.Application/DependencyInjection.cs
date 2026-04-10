@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MwSolucoes.Application.UseCases.Auth;
 using MwSolucoes.Application.UseCases.User.DeleteUser;
 using MwSolucoes.Application.UseCases.User.GetUser;
 using MwSolucoes.Application.UseCases.User.GetUsers;
@@ -21,6 +22,7 @@ namespace MwSolucoes.Application
             services.AddScoped<IGetUsersUseCase, GetUsersUseCase>();
             services.AddScoped<IUpdateUserUseCase, UpdateUserUseCase>();
             services.AddScoped<IDeleteUserUseCase, DeleteUserUseCase>();
+            services.AddScoped<ILoginUseCase, LoginUseCase>();
         }
     }
 }
