@@ -7,6 +7,7 @@ namespace MwSolucoes.Infrastructure.Data
     {
         public DbSet<User> Users => Set<User>();
         public DbSet<MaintenanceService> MaintenanceServices => Set<MaintenanceService>();
+        public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -66,6 +67,32 @@ namespace MwSolucoes.Infrastructure.Data
                 entity.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
 
                 entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            modelBuilder.Entity<ServiceRequest>(entity =>
+            {
+                entity.ToTable("ServiceRequests");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Protocol).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.Status).IsRequired().HasConversion<int>();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.EquipmentType).IsRequired().HasConversion<int>();
+                entity.Property(e => e.BrandModel).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ReportedProblem).IsRequired().HasColumnType("text");
+                entity.Property(e => e.TechnicalDiagnosis).HasColumnType("text");
+                entity.Property(e => e.LaborCost).HasPrecision(10, 2);
+                entity.Property(e => e.PartsCost).HasPrecision(10, 2);
+                entity.Property(e => e.RequiresDownPayment).IsRequired().HasDefaultValue(false);
+
+                entity.HasIndex(e => e.Protocol).IsUnique();
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
