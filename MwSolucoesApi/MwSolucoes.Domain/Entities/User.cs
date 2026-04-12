@@ -10,9 +10,9 @@ namespace MwSolucoes.Domain.Entities
     {
         private User() { }
 
-        public User(string name, string email, string password, string phoneNumber, string cpf, int role, Address address)
+        public User(string name, string email, string password, string phoneNumber, string cpf, int role, int accessLevel, Address address)
         {
-            Validate(name, email, password, phoneNumber, cpf, role, address);
+            Validate(name, email, password, phoneNumber, cpf, role, accessLevel, address);
             Id = Guid.NewGuid();
             Name = name;
             Email = email;
@@ -32,12 +32,12 @@ namespace MwSolucoes.Domain.Entities
 
         public UserRoles Role { get; private set; } = UserRoles.Cliente;
 
-        public AccessLevels AccessLevel { get; private set; } = AccessLevels.Comum;
+        public AccessLevels AccessLevel { get; private set; }
 
         public bool IsActive { get; private set; } = true;
 
         public Address Address { get; private set; }
-        public void Validate(string name, string email, string password, string phoneNumber, string cpf, int role, Address address)
+        public void Validate(string name, string email, string password, string phoneNumber, string cpf, int role, int accessLevel, Address address)
         {
             ValidateName(name);
             ValidateEmail(email);
@@ -46,6 +46,7 @@ namespace MwSolucoes.Domain.Entities
             ValidateCpf(cpf);
             ValidateRole(role);
             ValidateAddress(address);
+            ValidateAccessLevel(accessLevel);
         }
 
         // Validate Methods
@@ -102,9 +103,18 @@ namespace MwSolucoes.Domain.Entities
             Address = address;
         }
 
-        private void UpdateAccessLevel(AccessLevels accessLevel)
+        private void ValidateAccessLevel(int accessLevel)
         {
-            AccessLevel = accessLevel;
+            if (!Enum.IsDefined(typeof(AccessLevels), accessLevel))
+            {
+                throw new DomainException("Nível de acesso inválido.");
+            }
+            AccessLevel = (AccessLevels)accessLevel;
+        }
+
+        public void UpdateAccessLevel(int accessLevel)
+        {
+            AccessLevel = (AccessLevels)accessLevel;
         }
 
         // Helper Methods
@@ -116,15 +126,16 @@ namespace MwSolucoes.Domain.Entities
             }
             user.IsActive = false;
         }
-        public void UpdateUser(string name, string email, string phoneNumber, string cpf, int role, Address address)
+        public void UpdateUser(string name, string email, string phoneNumber, string cpf, int role, int accessLevel, Address address)
         {
-            Validate(name, email, PasswordHash, phoneNumber, cpf, role, address);
+            Validate(name, email, PasswordHash, phoneNumber, cpf, role, accessLevel, address);
             Name = name;
             Email = email;
             PhoneNumber = new PhoneNumber(phoneNumber);
             CPF = new Cpf(cpf);
             Role = (UserRoles)role;
             Address = address;
+            AccessLevel = (AccessLevels)accessLevel;
         }
         public void UpdatePassword(string newPasswordHash)
         {

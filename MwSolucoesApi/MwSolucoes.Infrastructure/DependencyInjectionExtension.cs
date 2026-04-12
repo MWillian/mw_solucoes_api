@@ -32,6 +32,7 @@ namespace MwSolucoes.Infrastructure
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IMaintenanceServiceRepository, MaintenanceServiceRepository>();
 
         }
         private static void AddCepValidation(IServiceCollection services, IConfiguration configuration)

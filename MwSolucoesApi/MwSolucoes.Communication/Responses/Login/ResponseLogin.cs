@@ -1,4 +1,4 @@
-﻿namespace MwSolucoes.Communication.Responses
+﻿namespace MwSolucoes.Communication.Responses.Login
 {
     public class ResponseLogin
     {

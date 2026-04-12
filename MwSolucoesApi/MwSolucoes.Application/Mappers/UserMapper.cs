@@ -1,5 +1,5 @@
 ﻿using MwSolucoes.Communication.Requests;
-using MwSolucoes.Communication.Responses;
+using MwSolucoes.Communication.Responses.Login;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Security.Tokens;
@@ -28,7 +28,7 @@ namespace MwSolucoes.Application.Mappers
         public static User ToUser(RequestRegisterUser request, string passwordHash)
         {
             var address = new Address(request.Logradouro, request.Numero, request.Bairro, request.Cidade, request.Estado, request.Cep);
-            return new User(request.Name, request.Email, passwordHash, request.PhoneNumber, request.Cpf, request.Role, address);
+            return new User(request.Name, request.Email, passwordHash, request.PhoneNumber, request.Cpf, request.Role, request.AccessLevel, address);
         }
         public static ResponseGetUser ToResponseGetUser(User user)
         {
@@ -42,7 +42,7 @@ namespace MwSolucoes.Application.Mappers
                 PhoneNumber = user.PhoneNumber
             };
         }
-        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(Domain.Entities.PagedResult<User> users)
+        public static Communication.Responses.PagedResult<ResponseGetUser> ToResponseGetUsers(PagedResult<User> users)
         {
             var responseItems = users.Items.Select(ToResponseGetUser).ToList();
             Communication.Responses.PagedResult<ResponseGetUser> result = new(responseItems, users.TotalCount, users.CurrentPage, users.PageSize);

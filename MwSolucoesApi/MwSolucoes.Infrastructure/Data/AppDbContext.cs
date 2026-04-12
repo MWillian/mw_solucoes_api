@@ -6,6 +6,7 @@ namespace MwSolucoes.Infrastructure.Data
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
+        public DbSet<MaintenanceService> MaintenanceServices => Set<MaintenanceService>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,6 +51,21 @@ namespace MwSolucoes.Infrastructure.Data
                 });
 
                 entity.Navigation(e => e.Address).IsRequired();
+            });
+
+            modelBuilder.Entity<MaintenanceService>(entity =>
+            {
+                entity.ToTable("MaintenanceServices");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Description).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Price).IsRequired().HasPrecision(10, 2);
+                entity.Property(e => e.Category).IsRequired().HasConversion<int>();
+                entity.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
+
+                entity.HasIndex(e => e.Name).IsUnique();
             });
         }
     }
