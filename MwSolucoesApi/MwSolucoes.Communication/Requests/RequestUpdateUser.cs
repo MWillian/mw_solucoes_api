@@ -1,5 +1,4 @@
 ﻿using MwSolucoes.Exception.ResouceErrors.DomainErrorMessages;
-using MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages;
 using System.ComponentModel.DataAnnotations;
 
 namespace MwSolucoes.Communication.Requests
@@ -23,6 +22,9 @@ namespace MwSolucoes.Communication.Requests
 
         [Required(ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "EMPTY_ROLE")]
         public int Role { get; set; }
+
+        [Required(ErrorMessage ="Nivel de acesso vazio.")]
+        public int AccessLevel { get; set; }
 
         [Required]
         public string Logradouro { get; set; } = string.Empty;

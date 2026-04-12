@@ -34,5 +34,24 @@ namespace MwSolucoes.Application.Mappers
                 Category = service.Category
             };
         }
+
+        public static ResponseGetMaintenanceService ToResponseGetMaintenanceService(MaintenanceService service)
+        {
+            return new ResponseGetMaintenanceService
+            {
+                Id = service.Id,
+                Name = service.Name,
+                Description = service.Description,
+                Price = service.Price,
+                IsActive = service.IsActive,
+                Category = service.Category
+            };
+        }
+
+        public static Communication.Responses.PagedResult<ResponseGetMaintenanceService> ToResponseGetMaintenanceServices(Domain.Entities.PagedResult<MaintenanceService> services)
+        {
+            var responseItems = services.Items.Select(ToResponseGetMaintenanceService).ToList();
+            return new Communication.Responses.PagedResult<ResponseGetMaintenanceService>(responseItems, services.TotalCount, services.CurrentPage, services.PageSize);
+        }
     }
 }

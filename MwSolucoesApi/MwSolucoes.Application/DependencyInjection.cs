@@ -4,6 +4,8 @@ using MwSolucoes.Application.UseCases.Auth.UpdatePassword;
 using MwSolucoes.Application.UseCases.MaintenanceService.Create;
 using MwSolucoes.Application.UseCases.MaintenanceService.Deactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
+using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceService;
+using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceServices;
 using MwSolucoes.Application.UseCases.MaintenanceService.Update;
 using MwSolucoes.Application.UseCases.User.DeleteUser;
 using MwSolucoes.Application.UseCases.User.GetUser;
@@ -33,6 +35,8 @@ namespace MwSolucoes.Application
             services.AddScoped<IDeleteMaintenanceServiceUseCase, DeleteMaintenanceServiceUseCase>();
             services.AddScoped<IUpdateMaintenanceServiceUseCase, UpdateMaintenanceServiceUseCase>();
             services.AddScoped<IDeactivateMaintenanceServiceUseCase, DeactivateMaintenanceServiceUseCase>();
+            services.AddScoped<IGetMaintenanceServicesUseCase, GetMaintenanceServicesUseCase>();
+            services.AddScoped<IGetMaintenanceServiceByIdUseCase, GetMaintenanceServiceByIdUseCase>();
         }
     }
 }

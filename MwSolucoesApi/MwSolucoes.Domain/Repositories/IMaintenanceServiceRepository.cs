@@ -1,4 +1,5 @@
 ﻿using MwSolucoes.Domain.Entities;
+using MwSolucoes.Domain.Repositories.Filters;
 
 namespace MwSolucoes.Domain.Repositories
 {
@@ -7,7 +8,7 @@ namespace MwSolucoes.Domain.Repositories
         Task Add(MaintenanceService service);
         Task Update(MaintenanceService service);
         Task Delete(MaintenanceService service);
-        Task<PagedResult<MaintenanceService>> GetAll(int id);
+        Task<PagedResult<MaintenanceService>> GetAll(MaintenanceServiceFilters filters);
         Task<MaintenanceService?> GetById(int id);
         Task<MaintenanceService?> GetByName(string name);
     }

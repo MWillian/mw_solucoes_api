@@ -3,7 +3,6 @@ using MwSolucoes.Communication.Requests;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Exception.ExceptionBase;
-using MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages;
 
 namespace MwSolucoes.Application.UseCases.User.UpdateUser
 {
@@ -26,7 +25,7 @@ namespace MwSolucoes.Application.UseCases.User.UpdateUser
         private void UpdateUserFields(Domain.Entities.User user, RequestUpdateUser request)
         {
             var address = new Domain.ValueObjects.Address(request.Logradouro, request.Numero, request.Bairro, request.Cidade, request.Estado, request.Cep);
-            user.UpdateUser(request.Name, request.Email, request.PhoneNumber, request.Cpf, request.Role, address);
+            user.UpdateUser(request.Name, request.Email, request.PhoneNumber, request.Cpf, request.Role, request.AccessLevel, address);
         }
     }
 }

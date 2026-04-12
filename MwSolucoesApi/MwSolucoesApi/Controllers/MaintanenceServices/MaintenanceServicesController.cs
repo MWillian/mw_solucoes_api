@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.UseCases.MaintenanceService.Create;
 using MwSolucoes.Application.UseCases.MaintenanceService.Deactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
+using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceService;
+using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceServices;
 using MwSolucoes.Application.UseCases.MaintenanceService.Update;
 using MwSolucoes.Communication.Requests.MaintenanceService;
 using MwSolucoes.Communication.Responses;
@@ -14,6 +16,27 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
     [ApiController]
     public class MaintenanceServicesController : ControllerBase
     {
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(PagedResult<ResponseGetMaintenanceService>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMaintenanceServices([FromServices] IGetMaintenanceServicesUseCase useCase, [FromQuery] MaintenanceServiceFilters filters)
+        {
+            var response = await useCase.Execute(filters);
+            return Ok(response);
+        }
+
+        [HttpGet("{id:int}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseGetMaintenanceService), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMaintenanceServiceById([FromRoute] int id, [FromServices] IGetMaintenanceServiceByIdUseCase useCase)
+        {
+            var response = await useCase.Execute(id);
+            return Ok(response);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status409Conflict)]

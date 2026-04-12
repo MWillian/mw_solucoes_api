@@ -35,6 +35,9 @@ namespace MwSolucoes.Communication.Requests
         [Required]
         public string Logradouro { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Nivel de acesso vazio.")]
+        public int AccessLevel { get; set; }
+
         [Required]
         public string Numero { get; set; } = string.Empty;
 
