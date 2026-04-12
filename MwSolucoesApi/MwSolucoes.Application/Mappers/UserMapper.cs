@@ -1,5 +1,5 @@
 ﻿using MwSolucoes.Communication.Requests;
-using MwSolucoes.Communication.Responses;
+using MwSolucoes.Communication.Responses.Login;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Security.Tokens;

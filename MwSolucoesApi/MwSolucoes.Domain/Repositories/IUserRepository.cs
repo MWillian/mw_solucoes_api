@@ -8,7 +8,7 @@ namespace MwSolucoes.Domain.Repositories
         Task Add(User user);
         Task<User?> GetByEmail(string email);
         Task<User?> GetById(Guid id);
-        Task<PagedResult<User>> GetUsers(UserFilters filters);
+        Task<PagedResult<User>> GetAll(UserFilters filters);
         Task Update(User user);
         Task<bool> ExistUserWithEmail(string email);
         Task<bool> ExistUserWithPhoneNumber(string phoneNumber);

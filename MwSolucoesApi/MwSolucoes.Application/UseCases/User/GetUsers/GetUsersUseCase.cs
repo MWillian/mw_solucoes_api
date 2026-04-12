@@ -15,7 +15,7 @@ namespace MwSolucoes.Application.UseCases.User.GetUsers
             _userRepository = userRepository;
         }
 
-        public async Task<Communication.Responses.PagedResult<ResponseGetUser>> Execute (UserFilters filters)
+        public async Task<Communication.Responses.PagedResult<ResponseGetUser>> Execute(UserFilters filters)
         {
             filters ??= new UserFilters();
 
@@ -35,7 +35,7 @@ namespace MwSolucoes.Application.UseCases.User.GetUsers
                 SortDirection = filters.SortDirection
             };
 
-            var users = await _userRepository.GetUsers(repositoryFilters);
+            var users = await _userRepository.GetAll(repositoryFilters);
             var result = UserMapper.ToResponseGetUsers(users);
             return result;
         }

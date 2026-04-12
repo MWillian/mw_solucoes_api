@@ -24,7 +24,7 @@ namespace MwSolucoes.Infrastructure.Repositories
         public async Task<User?> GetById(Guid id) =>
             await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
-        public async Task<PagedResult<User>> GetUsers(UserFilters filters)
+        public async Task<PagedResult<User>> GetAll(UserFilters filters)
         {
             var query = _context.Users.AsNoTracking().AsQueryable();
 
