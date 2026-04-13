@@ -5,7 +5,7 @@ using MwSolucoes.Application.UseCases.User.GetUser;
 using MwSolucoes.Application.UseCases.User.GetUsers;
 using MwSolucoes.Application.UseCases.User.RegisterUser;
 using MwSolucoes.Application.UseCases.User.UpdateUser;
-using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
 using System.Security.Claims;

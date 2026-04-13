@@ -1,4 +1,4 @@
-﻿namespace MwSolucoes.Communication.Requests
+﻿namespace MwSolucoes.Communication.Requests.User
 {
     public class UserFilters
     {

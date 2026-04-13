@@ -1,11 +1,9 @@
-﻿using MwSolucoes.Exception.ResouceErrors;
-using MwSolucoes.Exception.ResouceErrors.DomainErrorMessages;
-using MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages;
+﻿using MwSolucoes.Exception.ResouceErrors.DomainErrorMessages;
 using System.ComponentModel.DataAnnotations;
 
-namespace MwSolucoes.Communication.Requests
+namespace MwSolucoes.Communication.Requests.User
 {
-    public class RequestRegisterUser
+    public class RequestUpdateUser
     {
         [Required(ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "EMPTY_USERNAME")]
         public string Name { get; set; } = string.Empty;
@@ -25,18 +23,11 @@ namespace MwSolucoes.Communication.Requests
         [Required(ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "EMPTY_ROLE")]
         public int Role { get; set; }
 
-        [Required(ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "EMPTY_PASSWORD")]
-        [StringLength(40, MinimumLength = 8, ErrorMessageResourceType = typeof(UserErrorMessages), ErrorMessageResourceName = "INVALID_PASSWORD")]
-        public string Password { get; set; } = string.Empty;
-
-        [Compare("Password", ErrorMessageResourceType = typeof(RegisterUserErrorMessages), ErrorMessageResourceName = "DIFERENT_PASSWORDS")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+        [Required(ErrorMessage ="Nivel de acesso vazio.")]
+        public int AccessLevel { get; set; }
 
         [Required]
         public string Logradouro { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Nivel de acesso vazio.")]
-        public int AccessLevel { get; set; }
 
         [Required]
         public string Numero { get; set; } = string.Empty;

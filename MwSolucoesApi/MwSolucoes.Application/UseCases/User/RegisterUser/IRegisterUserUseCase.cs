@@ -1,4 +1,4 @@
-﻿using MwSolucoes.Communication.Requests;
+﻿using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses.User;
 
 namespace MwSolucoes.Application.UseCases.User.RegisterUser

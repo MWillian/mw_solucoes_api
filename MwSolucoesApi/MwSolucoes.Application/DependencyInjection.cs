@@ -7,6 +7,7 @@ using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
 using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceService;
 using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceServices;
 using MwSolucoes.Application.UseCases.MaintenanceService.Update;
+using MwSolucoes.Application.UseCases.ServiceRequest;
 using MwSolucoes.Application.UseCases.User.DeleteUser;
 using MwSolucoes.Application.UseCases.User.GetUser;
 using MwSolucoes.Application.UseCases.User.GetUsers;
@@ -37,6 +38,7 @@ namespace MwSolucoes.Application
             services.AddScoped<IDeactivateMaintenanceServiceUseCase, DeactivateMaintenanceServiceUseCase>();
             services.AddScoped<IGetMaintenanceServicesUseCase, GetMaintenanceServicesUseCase>();
             services.AddScoped<IGetMaintenanceServiceByIdUseCase, GetMaintenanceServiceByIdUseCase>();
+            services.AddScoped<ICreateServiceRequestUseCase, CreateServiceRequestUseCase>();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MwSolucoes.Exception.ResouceErrors.DomainErrorMessages;
 using System.ComponentModel.DataAnnotations;
 
-namespace MwSolucoes.Communication.Requests
+namespace MwSolucoes.Communication.Requests.Login
 {
     public class RequestLogin
     {

@@ -1,4 +1,4 @@
-﻿using MwSolucoes.Communication.Requests;
+﻿using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
 using MwSolucoes.Exception.ExceptionBase;

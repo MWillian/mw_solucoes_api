@@ -1,4 +1,4 @@
-﻿using MwSolucoes.Communication.Requests;
+﻿using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses.Login;
 
 namespace MwSolucoes.Application.UseCases.Auth

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.UseCases.Auth;
-using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.Login;
 

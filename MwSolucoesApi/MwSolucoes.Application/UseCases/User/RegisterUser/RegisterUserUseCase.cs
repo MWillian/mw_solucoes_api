@@ -1,6 +1,6 @@
 ﻿using MwSolucoes.Application.Mappers;
 using MwSolucoes.Application.UseCases.User.RegisterUser;
-using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.CepValidation;
 using MwSolucoes.Domain.Repositories;
