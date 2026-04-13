@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MwSolucoes.Communication.Requests
+namespace MwSolucoes.Communication.Requests.Auth
 {
     public class RequestUpdatePassword
     {

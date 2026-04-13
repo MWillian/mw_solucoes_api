@@ -1,5 +1,5 @@
 ﻿using MwSolucoes.Application.Mappers;
-using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses.Login;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;

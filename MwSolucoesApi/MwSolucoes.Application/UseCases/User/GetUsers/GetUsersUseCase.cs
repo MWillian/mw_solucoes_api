@@ -1,5 +1,5 @@
 ﻿using MwSolucoes.Application.Mappers;
-using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Repositories;
 using DomainUserFilters = MwSolucoes.Domain.Repositories.Filters.UserFilters;

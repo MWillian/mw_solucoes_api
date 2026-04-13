@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.UseCases.Auth.UpdatePassword;
-using MwSolucoes.Communication.Requests;
+using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Communication.Responses;
 using System.Security.Claims;
 

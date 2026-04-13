@@ -1,4 +1,4 @@
-﻿using MwSolucoes.Communication.Requests;
+﻿using MwSolucoes.Communication.Requests.Auth;
 
 namespace MwSolucoes.Application.UseCases.Auth.UpdatePassword
 {
