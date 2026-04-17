@@ -39,6 +39,10 @@ namespace MwSolucoes.Application
             services.AddScoped<IGetMaintenanceServicesUseCase, GetMaintenanceServicesUseCase>();
             services.AddScoped<IGetMaintenanceServiceByIdUseCase, GetMaintenanceServiceByIdUseCase>();
             services.AddScoped<ICreateServiceRequestUseCase, CreateServiceRequestUseCase>();
+            services.AddScoped<IGetServiceRequestsUseCase, GetServiceRequestsUseCase>();
+            services.AddScoped<IGetServiceRequestByIdUseCase, GetServiceRequestByIdUseCase>();
+            services.AddScoped<IDeleteServiceRequestUseCase, DeleteServiceRequestUseCase>();
+            services.AddScoped<IUpdateServiceRequestUseCase, UpdateServiceRequestUseCase>();
         }
     }
 }
