@@ -1,6 +1,6 @@
-namespace MwSolucoes.Domain.Enums
+﻿namespace MwSolucoes.Domain.Enums
 {
-    public enum ServiceRequestStatus
+    public enum ServiceRequestHistoryStatus
     {
         Created = 0,
         InProgress = 1,

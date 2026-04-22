@@ -16,5 +16,6 @@ namespace MwSolucoes.Communication.Responses.ServiceRequest
         public decimal? LaborCost { get; set; }
         public decimal? PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
+        public List<int> ServiceIds { get; set; } = [];
     }
 }

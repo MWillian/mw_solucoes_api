@@ -82,6 +82,17 @@ namespace MwSolucoes.Infrastructure.Repositories
             return await _context.MaintenanceServices.AsNoTracking().FirstOrDefaultAsync(s => s.Id.Equals(id));
         }
 
+        public async Task<List<MaintenanceService>> GetByIds(List<int> ids)
+        {
+            if (ids is null || ids.Count == 0)
+                return [];
+
+            return await _context.MaintenanceServices
+                .AsNoTracking()
+                .Where(service => ids.Contains(service.Id))
+                .ToListAsync();
+        }
+
         public async Task Update(MaintenanceService service)
         {
             _context.MaintenanceServices.Update(service);

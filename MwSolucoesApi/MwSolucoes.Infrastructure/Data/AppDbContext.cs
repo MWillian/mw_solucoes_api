@@ -8,6 +8,8 @@ namespace MwSolucoes.Infrastructure.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<MaintenanceService> MaintenanceServices => Set<MaintenanceService>();
         public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
+        public DbSet<ServiceRequestItem> ServiceRequestItems => Set<ServiceRequestItem>();
+        public DbSet<ServiceRequestHistory> ServiceRequestHistories => Set<ServiceRequestHistory>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,6 +94,41 @@ namespace MwSolucoes.Infrastructure.Data
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(e => e.Items)
+                    .WithOne(e => e.ServiceRequest)
+                    .HasForeignKey(e => e.ServiceRequestId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ServiceRequestItem>(entity =>
+            {
+                entity.ToTable("ServiceRequestItems");
+                entity.HasKey(e => new { e.ServiceRequestId, e.MaintenanceServiceId });
+
+                entity.Property(e => e.UnitPrice).IsRequired().HasPrecision(10, 2);
+                entity.Property(e => e.Quantity).IsRequired();
+
+                entity.HasOne(e => e.MaintenanceService)
+                    .WithMany()
+                    .HasForeignKey(e => e.MaintenanceServiceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ServiceRequestHistory>(entity =>
+            {
+                entity.ToTable("ServiceRequestHistory");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Description).HasColumnType("text");
+                entity.Property(e => e.ServiceRequestId).IsRequired();
+                entity.Property(e => e.Status).IsRequired().HasConversion<int>();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.LastUpdatedAt);
+                entity.HasOne(e => e.ServiceRequest)
+                    .WithMany(e => e.Histories)
+                    .HasForeignKey(e => e.ServiceRequestId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

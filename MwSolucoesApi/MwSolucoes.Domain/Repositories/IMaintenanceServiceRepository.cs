@@ -10,6 +10,7 @@ namespace MwSolucoes.Domain.Repositories
         Task Delete(MaintenanceService service);
         Task<PagedResult<MaintenanceService>> GetAll(MaintenanceServiceFilters filters);
         Task<MaintenanceService?> GetById(int id);
+        Task<List<MaintenanceService>> GetByIds(List<int> ids);
         Task<MaintenanceService?> GetByName(string name);
     }
 }

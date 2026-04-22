@@ -18,5 +18,9 @@ namespace MwSolucoes.Communication.Requests.ServiceRequest
         [Range(0, double.MaxValue, ErrorMessage = "Valor de peças não pode ser negativo.")]
         public decimal PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
+
+        [Required(ErrorMessage = "Selecione ao menos um serviço.")]
+        [MinLength(1, ErrorMessage = "Selecione ao menos um serviço.")]
+        public List<int> ServiceIds { get; set; } = [];
     }
 }
