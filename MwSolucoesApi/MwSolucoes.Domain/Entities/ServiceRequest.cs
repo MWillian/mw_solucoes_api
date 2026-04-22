@@ -7,6 +7,7 @@ namespace MwSolucoes.Domain.Entities
     public class ServiceRequest
     {
         public Guid Id { get; private set; }
+        public List<ServiceRequestItem> Items { get; private set; } = [];
         public string Protocol { get; private set; } = string.Empty;
         public Guid UserId { get; private set; }
         public ServiceRequestStatus Status { get; private set; } = ServiceRequestStatus.Created;
@@ -20,15 +21,17 @@ namespace MwSolucoes.Domain.Entities
         public bool RequiresDownPayment { get; private set; }
 
         public User User { get; private set; } = null!;
+        public List<ServiceRequestHistory> Histories { get; private set; } = [];
 
         private ServiceRequest() { }
 
-        public ServiceRequest(Guid userId, EquipmentType equipmentType, string brandModel, string reportedProblem, bool requiresDownPayment)
+        public ServiceRequest(Guid userId, EquipmentType equipmentType, string brandModel, string reportedProblem, bool requiresDownPayment, IEnumerable<ServiceRequestItem> items)
         {
             ValidateUserId(userId);
             ValidateEquipmentType(equipmentType);
             ValidateBrandModel(brandModel);
             ValidateReportedProblem(reportedProblem);
+            ValidateItems(items);
 
             Id = Guid.NewGuid();
             Protocol = GenerateProtocol();
@@ -39,6 +42,9 @@ namespace MwSolucoes.Domain.Entities
             ReportedProblem = reportedProblem;
             RequiresDownPayment = requiresDownPayment;
             Status = ServiceRequestStatus.Created;
+            Items = items
+                .DistinctBy(item => item.MaintenanceServiceId)
+                .ToList();
         }
 
         private static string GenerateProtocol()
@@ -75,6 +81,12 @@ namespace MwSolucoes.Domain.Entities
                 throw new DomainException("Problema relatado é obrigatório.");
         }
 
+        private void ValidateItems(IEnumerable<ServiceRequestItem> items)
+        {
+            if (items is null || !items.Any())
+                throw new DomainException("A solicitação deve conter ao menos um serviço.");
+        }
+
         private void ValidateNonNegativeValue(decimal? value, string fieldName)
         {
             if (value.HasValue && value.Value < 0)
@@ -94,6 +106,11 @@ namespace MwSolucoes.Domain.Entities
         public void Cancel()
         {
             Status = ServiceRequestStatus.Canceled;
+        }
+
+        public void Reject()
+        {
+            Status = ServiceRequestStatus.Rejected;
         }
 
         public void SetTechnicalData(string? technicalDiagnosis, decimal? laborCost, decimal? partsCost)

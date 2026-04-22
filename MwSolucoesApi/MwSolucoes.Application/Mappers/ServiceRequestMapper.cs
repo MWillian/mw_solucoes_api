@@ -22,7 +22,8 @@ namespace MwSolucoes.Application.Mappers
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
                 LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
-                RequiresDownPayment = serviceRequest.RequiresDownPayment
+                RequiresDownPayment = serviceRequest.RequiresDownPayment,
+                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
@@ -41,7 +42,8 @@ namespace MwSolucoes.Application.Mappers
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
                 LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
-                RequiresDownPayment = serviceRequest.RequiresDownPayment
+                RequiresDownPayment = serviceRequest.RequiresDownPayment,
+                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
@@ -66,18 +68,20 @@ namespace MwSolucoes.Application.Mappers
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
                 LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
-                RequiresDownPayment = serviceRequest.RequiresDownPayment
+                RequiresDownPayment = serviceRequest.RequiresDownPayment,
+                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
-        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId, string ?technicalDiagnosis, decimal laborCost, decimal partsCost)
+        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId, string? technicalDiagnosis, decimal laborCost, decimal partsCost, List<ServiceRequestItem> items)
         {
             var newUser = new ServiceRequest(
                 userId,
                 (EquipmentType)request.EquipmentType,
                 request.BrandModel,
                 request.ReportedProblem,
-                request.RequiresDownPayment
+                request.RequiresDownPayment,
+                items
             );
             newUser.SetTechnicalData(
                 technicalDiagnosis,

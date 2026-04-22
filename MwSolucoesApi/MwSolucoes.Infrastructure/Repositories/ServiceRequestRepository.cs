@@ -39,15 +39,20 @@ namespace MwSolucoes.Infrastructure.Repositories
         }
 
         public async Task<ServiceRequest?> GetById(Guid id) =>
-            await _context.ServiceRequests.FirstOrDefaultAsync(m => m.Id.Equals(id));
+            await _context.ServiceRequests
+                .Include(serviceRequest => serviceRequest.Items)
+                .FirstOrDefaultAsync(m => m.Id.Equals(id));
 
         public async Task<ServiceRequest?> GetByProtocol(string protocol) =>
-            await _context.ServiceRequests.FirstOrDefaultAsync(m => m.Protocol.Equals(protocol));
+            await _context.ServiceRequests
+                .Include(serviceRequest => serviceRequest.Items)
+                .FirstOrDefaultAsync(m => m.Protocol.Equals(protocol));
 
         public async Task<PagedResult<ServiceRequest>> GetAll(ServiceRequestFilters filters, Guid? userId)
         {
             var query = _context.ServiceRequests
                 .AsNoTracking()
+                .Include(serviceRequest => serviceRequest.Items)
                 .AsQueryable();
 
             if (userId.HasValue)
