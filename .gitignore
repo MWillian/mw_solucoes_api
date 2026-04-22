@@ -3,8 +3,9 @@
 [Bb]in/
 [Oo]bj/
 
-# Pastas específicas do Visual Studio
+# Pastas específicas do Visual Studio e Visual Studio Code
 .vs/
+.vscode/
 
 # Outros arquivos temporários
 *.user

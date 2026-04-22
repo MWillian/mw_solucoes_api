@@ -1,7 +1,7 @@
 ﻿using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses.Login;
 
-namespace MwSolucoes.Application.UseCases.Auth
+namespace MwSolucoes.Application.UseCases.Auth.Login
 {
     public interface ILoginUseCase
     {

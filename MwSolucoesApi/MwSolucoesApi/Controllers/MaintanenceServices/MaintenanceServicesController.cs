@@ -5,6 +5,7 @@ using MwSolucoes.Application.UseCases.MaintenanceService.Deactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
 using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceService;
 using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceServices;
+using MwSolucoes.Application.UseCases.MaintenanceService.Reactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Update;
 using MwSolucoes.Communication.Requests.MaintenanceService;
 using MwSolucoes.Communication.Responses;
@@ -81,6 +82,19 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeactivateMaintenanceService([FromRoute] int id, [FromServices] IDeactivateMaintenanceServiceUseCase useCase)
+        {
+            await useCase.Execute(id);
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}/reactivate")]
+        [Authorize(Roles = "Técnico")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> ReactivateMaintenanceService([FromRoute] int id, [FromServices] IReactivateMaintenanceServiceUseCase useCase)
         {
             await useCase.Execute(id);
             return NoContent();
