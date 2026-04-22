@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using MwSolucoes.Application.UseCases.Auth;
+using MwSolucoes.Application.UseCases.Auth.Login;
 using MwSolucoes.Application.UseCases.Auth.UpdatePassword;
 using MwSolucoes.Application.UseCases.MaintenanceService.Create;
 using MwSolucoes.Application.UseCases.MaintenanceService.Deactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
 using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceService;
 using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceServices;
+using MwSolucoes.Application.UseCases.MaintenanceService.Reactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Update;
 using MwSolucoes.Application.UseCases.ServiceRequest;
 using MwSolucoes.Application.UseCases.User.DeleteUser;
@@ -36,6 +37,7 @@ namespace MwSolucoes.Application
             services.AddScoped<IDeleteMaintenanceServiceUseCase, DeleteMaintenanceServiceUseCase>();
             services.AddScoped<IUpdateMaintenanceServiceUseCase, UpdateMaintenanceServiceUseCase>();
             services.AddScoped<IDeactivateMaintenanceServiceUseCase, DeactivateMaintenanceServiceUseCase>();
+            services.AddScoped<IReactivateMaintenanceServiceUseCase, ReactivateMaintenanceServiceUseCase>();
             services.AddScoped<IGetMaintenanceServicesUseCase, GetMaintenanceServicesUseCase>();
             services.AddScoped<IGetMaintenanceServiceByIdUseCase, GetMaintenanceServiceByIdUseCase>();
             services.AddScoped<ICreateServiceRequestUseCase, CreateServiceRequestUseCase>();

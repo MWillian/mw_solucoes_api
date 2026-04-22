@@ -6,7 +6,7 @@ using MwSolucoes.Domain.Security.Cryptography;
 using MwSolucoes.Domain.Security.Tokens;
 using MwSolucoes.Exception.ExceptionBase;
 
-namespace MwSolucoes.Application.UseCases.Auth
+namespace MwSolucoes.Application.UseCases.Auth.Login
 {
     public class LoginUseCase : ILoginUseCase
     {
