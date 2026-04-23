@@ -23,44 +23,18 @@ namespace MwSolucoes.Application.UseCases.ServiceRequest
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
 
-            UpdateStatus(serviceRequest, request.Status);
             serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.LaborCost, request.PartsCost);
-
             await _serviceRequestRepository.Update(serviceRequest);
-
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
-        private static void Validate(Guid serviceRequestId, RequestUpdateServiceRequest request)
+        private void Validate(Guid serviceRequestId, RequestUpdateServiceRequest request)
         {
             if (serviceRequestId == Guid.Empty)
                 throw new ErrorOnValidationException("O ID da solicitação de serviço é obrigatório.");
 
             if (request is null)
                 throw new ErrorOnValidationException("O objeto de requisição não pode ser nulo.");
-        }
-
-        private static void UpdateStatus(Domain.Entities.ServiceRequest serviceRequest, ServiceRequestStatus requestedStatus)
-        {
-            if (serviceRequest.Status == requestedStatus)
-                return;
-
-            switch (requestedStatus)
-            {
-                case ServiceRequestStatus.Created:
-                    throw new ErrorOnValidationException("Não é permitido retornar a solicitação para o status Criado.");
-                case ServiceRequestStatus.InProgress:
-                    serviceRequest.StartProgress();
-                    break;
-                case ServiceRequestStatus.Finished:
-                    serviceRequest.Finish();
-                    break;
-                case ServiceRequestStatus.Canceled:
-                    serviceRequest.Cancel();
-                    break;
-                default:
-                    throw new ErrorOnValidationException("Status de solicitação inválido.");
-            }
         }
     }
 }
