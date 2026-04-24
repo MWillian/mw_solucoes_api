@@ -1,5 +1,6 @@
 using MwSolucoes.Domain.Enums;
 using MwSolucoes.Exception.ExceptionBase;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 namespace MwSolucoes.Domain.Entities
@@ -95,21 +96,37 @@ namespace MwSolucoes.Domain.Entities
 
         public void StartProgress()
         {
+            if (Status != ServiceRequestStatus.Created)
+            {
+                throw new DomainException("A solicitação de serviço deve estar no status Criado para iniciar o progresso.");
+            }
             Status = ServiceRequestStatus.InProgress;
         }
 
         public void Finish()
         {
+            if (Status != ServiceRequestStatus.InProgress)
+            {
+                throw new DomainException("A solicitação de serviço deve estar no status Em Progresso para ser finalizada.");
+            }
             Status = ServiceRequestStatus.Finished;
         }
 
         public void Cancel()
         {
+            if (Status != ServiceRequestStatus.InProgress)
+            {
+                throw new DomainException("A solicitação de serviço deve estar no status Em Progresso para ser Cancelada.");
+            }
             Status = ServiceRequestStatus.Canceled;
         }
 
         public void Reject()
         {
+            if (Status != ServiceRequestStatus.Created)
+            {
+                throw new DomainException("A solicitação de serviço deve estar no status Criado para ser rejeitada.");
+            }
             Status = ServiceRequestStatus.Rejected;
         }
 

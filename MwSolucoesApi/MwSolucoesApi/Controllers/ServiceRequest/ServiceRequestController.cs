@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.UseCases.ServiceRequest;
+using MwSolucoes.Application.UseCases.ServiceRequest.Accept;
+using MwSolucoes.Application.UseCases.ServiceRequest.Cancel;
+using MwSolucoes.Application.UseCases.ServiceRequest.Finish;
+using MwSolucoes.Application.UseCases.ServiceRequest.Reject;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.ServiceRequest;
@@ -72,10 +76,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         }
 
         [HttpDelete("{id:guid}")]
-        [Authorize]
+        [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteServiceRequestById([FromServices] IDeleteServiceRequestUseCase useCase, [FromRoute] Guid id)
         {
@@ -84,6 +90,54 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
             await useCase.Execute(id, userId, canViewAll);
             return NoContent();
-        }   
+        }
+
+        [HttpPut("{id:guid}/accept")]
+        [Authorize(Roles = "Técnico")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AcceptServiceRequest([FromServices] IAcceptServiceRequestUseCase useCase, [FromRoute] Guid id)
+        {
+            var response = await useCase.Execute(id);
+            return Ok(response);
+        }
+
+        [HttpPut("{id:guid}/reject")]
+        [Authorize(Roles = "Técnico")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RejectServiceRequest([FromServices] IRejectServiceRequestUseCase useCase, [FromRoute] Guid id)
+        {
+            var response = await useCase.Execute(id);
+            return Ok(response);
+        }
+
+        [HttpPut("{id:guid}/finish")]
+        [Authorize(Roles = "Técnico")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
+        public async Task<IActionResult> FinishServiceRequest([FromServices] IFinishServiceRequestUseCase useCase, [FromRoute] Guid id)
+        {
+            var response = await useCase.Execute(id);
+            return Ok(response);
+        }
+
+        [HttpPut("{id:guid}/cancel")]
+        [Authorize(Roles = "Técnico")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CancelServiceRequest([FromServices] ICancelServiceRequestUseCase useCase, [FromRoute] Guid id)
+        {
+            var response = await useCase.Execute(id);
+            return Ok(response);
+        }
     }
 }
