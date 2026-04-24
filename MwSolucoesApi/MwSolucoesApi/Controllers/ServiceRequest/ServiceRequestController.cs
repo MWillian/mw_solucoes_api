@@ -76,10 +76,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         }
 
         [HttpDelete("{id:guid}")]
-        [Authorize]
+        [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteServiceRequestById([FromServices] IDeleteServiceRequestUseCase useCase, [FromRoute] Guid id)
         {

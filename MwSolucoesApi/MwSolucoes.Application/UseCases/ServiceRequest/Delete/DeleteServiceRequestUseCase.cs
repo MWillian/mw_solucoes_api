@@ -1,4 +1,5 @@
-﻿using MwSolucoes.Domain.Repositories;
+﻿using MwSolucoes.Domain.Enums;
+using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Exception.ExceptionBase;
 
 namespace MwSolucoes.Application.UseCases.ServiceRequest
@@ -14,6 +15,9 @@ namespace MwSolucoes.Application.UseCases.ServiceRequest
         {
             ValidateGuid(serviceRequestId);
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+
+            if (serviceRequest.Status != ServiceRequestStatus.Created)
+                throw new ErrorOnValidationException("A solicitação de serviço deve estar no status Criado para ser removida.");
 
             if (!canViewAll && serviceRequest.UserId != userId)
                 throw new NotFoundException("Solicitação de serviço não encontrada.");
