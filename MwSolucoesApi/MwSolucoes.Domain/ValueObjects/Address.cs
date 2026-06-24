@@ -1,4 +1,5 @@
-﻿using MwSolucoes.Exception.ExceptionBase;
+﻿using MwSolucoes.Domain.CepValidation;
+using MwSolucoes.Exception.ExceptionBase;
 
 namespace MwSolucoes.Domain.ValueObjects
 {
@@ -10,7 +11,6 @@ namespace MwSolucoes.Domain.ValueObjects
         public string Cidade { get; private set; } = string.Empty;
         public string Estado { get; private set; } = string.Empty;
         public string Cep { get; private set; } = string.Empty;
-
         private Address() { }
 
         public Address(string logradouro, string numero, string bairro, string cidade, string estado, string cep)
@@ -21,10 +21,10 @@ namespace MwSolucoes.Domain.ValueObjects
             Bairro = bairro;
             Cidade = cidade;
             Estado = estado;
-            Cep = ClearCep(cep);
+            Cep = cep;
         }
 
-        private static void Validate(string logradouro, string numero, string bairro, string cidade, string estado, string cep)
+        private void Validate(string logradouro, string numero, string bairro, string cidade, string estado, string cep)
         {
             if (string.IsNullOrWhiteSpace(logradouro))
                 throw new DomainException("Logradouro é obrigatório.");
@@ -46,7 +46,7 @@ namespace MwSolucoes.Domain.ValueObjects
                 throw new DomainException("CEP inválido.");
         }
 
-        private static string ClearCep(string cep)
+        private string ClearCep(string cep)
         {
             return new string(cep.Where(char.IsDigit).ToArray());
         }

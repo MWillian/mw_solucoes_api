@@ -28,7 +28,7 @@ namespace MwSolucoes.Application.Mappers
         public static User ToUser(RequestRegisterUser request, string passwordHash)
         {
             var address = new Address(request.Logradouro, request.Numero, request.Bairro, request.Cidade, request.Estado, request.Cep);
-            return new User(request.Name, request.Email, passwordHash, request.PhoneNumber, request.Cpf, request.Role, request.AccessLevel, address);
+            return new User(request.Name, request.Email, passwordHash, request.PhoneNumber, request.Cpf, 0, 0, address);
         }
         public static ResponseGetUser ToResponseGetUser(User user)
         {
@@ -63,7 +63,6 @@ namespace MwSolucoes.Application.Mappers
                 Cidade = user.Address.Cidade,
                 Estado = user.Address.Estado,
                 Cep = user.Address.Cep,
-                Role = (int)user.Role
             };
         }
     }

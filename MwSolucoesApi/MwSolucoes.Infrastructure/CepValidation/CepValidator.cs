@@ -50,6 +50,10 @@ namespace MwSolucoes.Infrastructure.CepValidation
             {
                 return false;
             }
+            catch
+            {
+                return false;
+            }
         }
 
         private sealed class ViaCepResponse

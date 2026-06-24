@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MwSolucoes.Application": {
+      "commandName": "Project"
+    },
+    "Perfil 1": {
+      "commandName": "Executable"
+    }
+  }
+}
