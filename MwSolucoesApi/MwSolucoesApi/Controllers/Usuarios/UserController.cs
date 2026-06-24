@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.UseCases.User.DeleteUser;
 using MwSolucoes.Application.UseCases.User.GetUser;
-using MwSolucoes.Application.UseCases.User.GetUsers;
-using MwSolucoes.Application.UseCases.User.RegisterUser;
-using MwSolucoes.Application.UseCases.User.UpdateUser;
 using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
@@ -16,12 +14,18 @@ namespace MwSolucoes.Api.Controllers.Usuarios
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateUser([FromBody] RequestRegisterUser request, [FromServices] IRegisterUserUseCase useCase)
+        public async Task<IActionResult> CreateUser([FromBody] RequestRegisterUser request)
         {
-            var createdUser = await useCase.Execute(request);
+            var createdUser = await _userService.RegisterUser(request);
             return Created(string.Empty, createdUser);
         }
         [Authorize]
@@ -55,12 +59,12 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [HttpGet]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(PagedResult<ResponseGetUser>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUsers([FromServices] IGetUsersUseCase useCase, [FromQuery] UserFilters filters)
+        public async Task<IActionResult> GetUsers([FromQuery] UserFilters filters)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out _)) return Unauthorized();
 
-            var users = await useCase.Execute(filters);
+            var users = await _userService.GetUserList(filters);
             return Ok(users);
         }
 
@@ -69,11 +73,11 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Update([FromServices] IUpdateUserUseCase useCase, [FromBody] RequestUpdateUser request)
+        public async Task<IActionResult> Update( [FromBody] RequestUpdateUser request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
-            var updatedUser = await useCase.Execute(userId, request);
+            var updatedUser = await _userService.UpdateUser(userId, request);
             return Ok(updatedUser);
         }
 

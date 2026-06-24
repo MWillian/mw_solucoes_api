@@ -1,6 +1,62 @@
-@MwSolucoesApi_HostAddress = http://localhost:5113
+@MwSolucoesApi_HostAddress = https://localhost:7259
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MDNiNjkzMy1mYjkyLTQyZTAtOWE3Ni04OTgxNjA0ZmIyODQiLCJuYW1laWQiOiI0MDNiNjkzMy1mYjkyLTQyZTAtOWE3Ni04OTgxNjA0ZmIyODQiLCJ1bmlxdWVfbmFtZSI6Ik1hdGhldXMgV2lsbGlhbiBkbyBOYXNjaW1lbnRvIiwicm9sZSI6IkNsaWVudGUiLCJhY2Nlc3NfbGV2ZWwiOiJDb211bSIsImp0aSI6ImE0YWZlZWQ4LTkyNWItNGQ3NC05MjZkLWEzYTNjMjcwZGY3MCIsImlhdCI6MTc4MjMzMDk3NiwibmJmIjoxNzgyMzMwOTc2LCJleHAiOjE3ODIzMzQ1NzYsImlzcyI6Ik13U29sdWNvZXMuQXBpIiwiYXVkIjoiTXdTb2x1Y29lcy5DbGllbnQifQ.rqNPzJH8cvLORWS-weiXCfZ1QQTS-LIestjjFjVO2zs
 
-GET {{MwSolucoesApi_HostAddress}}/weatherforecast/
+GET {{MwSolucoesApi_HostAddress}}/api/testconnection/check
 Accept: application/json
 
+###
+
+POST {{MwSolucoesApi_HostAddress}}/api/user
+Accept: application/json
+Content-Type: application/json
+{
+  "Name": "Matheus Willian do Nascimento",
+  "Email": "matheus@dxc.com",
+  "PhoneNumber" : "11999999991",
+  "Cpf": "53056582415",
+  "Password": "12345678",
+  "ConfirmPassword": "12345678",
+  "Logradouro": "Rua Teste",
+  "Numero": "123",
+  "Cep": "57040530",
+  "Bairro": "Bairro Teste",
+  "Cidade": "Cidade Teste",
+  "Estado": "AL"
+}
+###
+
+POST {{MwSolucoesApi_HostAddress}}/api/auth/login 
+Accept: application/json
+Content-Type: application/json
+{
+  "Email":"matheus.willian@dxc.com",
+  "Password":"12345678"
+}
+
+###
+
+GET {{MwSolucoesApi_HostAddress}}/api/user/me
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###
+
+PUT {{MwSolucoesApi_HostAddress}}/api/user/me
+Accept: application/json
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "Name": "Matheus Willian",
+  "Email": "matheus@dxc.com",
+  "PhoneNumber" : "11999999299",
+  "Cpf": "12549383460",
+  "Password": "12345678",
+  "ConfirmPassword": "12345678",
+  "Logradouro": "Rua Teste",
+  "Numero": "123",
+  "Cep": "57040530",
+  "Bairro": "Bairro Teste",
+  "Cidade": "Cidade Teste",
+  "Estado": "AL"
+}
 ###

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
 using MwSolucoes.Infrastructure;
@@ -11,7 +10,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Verbose()
+    .MinimumLevel.Information()
     .WriteTo.Console()
     .CreateBootstrapLogger();
 

@@ -25,7 +25,7 @@ namespace MwSolucoes.Application.UseCases.User.UpdateUser
         private void UpdateUserFields(Domain.Entities.User user, RequestUpdateUser request)
         {
             var address = new Domain.ValueObjects.Address(request.Logradouro, request.Numero, request.Bairro, request.Cidade, request.Estado, request.Cep);
-            user.UpdateUser(request.Name, request.Email, request.PhoneNumber, request.Cpf, request.Role, request.AccessLevel, address);
+            user.UpdateUser(request.Name, request.Email, request.PhoneNumber, request.Cpf, 0, 0, address);
         }
     }
 }

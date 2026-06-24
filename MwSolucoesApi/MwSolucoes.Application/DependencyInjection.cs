@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MwSolucoes.Application.Interfaces;
+using MwSolucoes.Application.Services;
 using MwSolucoes.Application.UseCases.Auth.Login;
 using MwSolucoes.Application.UseCases.Auth.UpdatePassword;
 using MwSolucoes.Application.UseCases.MaintenanceService.Create;
@@ -35,6 +37,10 @@ namespace MwSolucoes.Application
             services.AddScoped<IGetUsersUseCase, GetUsersUseCase>();
             services.AddScoped<IUpdateUserUseCase, UpdateUserUseCase>();
             services.AddScoped<IDeleteUserUseCase, DeleteUserUseCase>();
+
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+
             services.AddScoped<ILoginUseCase, LoginUseCase>();
             services.AddScoped<IUpdatePasswordUseCase, UpdatePasswordUseCase>();
             services.AddScoped<ICreateMaintenanceServiceUseCase, CreateMaintenanceServiceUseCase>();
