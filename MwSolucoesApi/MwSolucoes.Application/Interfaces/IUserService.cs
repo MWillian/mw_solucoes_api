@@ -9,5 +9,6 @@ namespace MwSolucoes.Application.Interfaces
         Task<ResponseUpdateUser> UpdateUser(Guid id, RequestUpdateUser request);
         Task<ResponseRegisterUser> RegisterUser(RequestRegisterUser request);
         Task<PagedResult<ResponseGetUser>> GetUserList(UserFilters filters);
+        Task DeactivateUser(Guid id);
     }
 }

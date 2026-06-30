@@ -66,6 +66,15 @@ namespace MwSolucoes.Application.Services
             return result;
         }
 
+        public async Task DeactivateUser(Guid id)
+        {
+            ValidateId(id);
+            var user = await _userRepository.GetById(id) ?? throw new NotFoundException(GetUsersErrorMessages.USER_NOT_FOUND);
+            user.Deactivate(user);
+            await _userRepository.Update(user);
+            return;
+        }
+
         // Helper Methods
         private void UpdateUserFields(Domain.Entities.User user, RequestUpdateUser request)
         {

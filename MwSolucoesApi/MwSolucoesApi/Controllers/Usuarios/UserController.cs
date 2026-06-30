@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.Interfaces;
-using MwSolucoes.Application.UseCases.User.DeleteUser;
 using MwSolucoes.Application.UseCases.User.GetUser;
 using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
@@ -86,11 +85,11 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Delete([FromServices] IDeleteUserUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var _)) return Unauthorized();
-            await useCase.Execute(id);
+            await _userService.DeactivateUser(id);
             return NoContent();
         }
 
@@ -99,11 +98,11 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteMe([FromServices] IDeleteUserUseCase useCase)
+        public async Task<IActionResult> DeactivateMe()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
-            await useCase.Execute(userId);
+            await _userService.DeactivateUser(userId);
             return NoContent();
         }
     }
