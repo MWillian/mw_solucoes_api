@@ -1,6 +1,7 @@
 ﻿using MwSolucoes.Domain.Entities;
 using MwSolucoes.Communication.Requests.MaintenanceService;
 using MwSolucoes.Communication.Responses.MaintenanceService;
+using DomainMaintenanceServiceFilters = MwSolucoes.Domain.Repositories.Filters.MaintenanceServiceFilters;
 
 namespace MwSolucoes.Application.Mappers
 {
@@ -52,6 +53,28 @@ namespace MwSolucoes.Application.Mappers
         {
             var responseItems = services.Items.Select(ToResponseGetMaintenanceService).ToList();
             return new Communication.Responses.PagedResult<ResponseGetMaintenanceService>(responseItems, services.TotalCount, services.CurrentPage, services.PageSize);
+        }
+
+        public static DomainMaintenanceServiceFilters ToDomainFilters(MaintenanceServiceFilters filters)
+        {
+            filters ??= new MaintenanceServiceFilters();
+
+            filters.Page = filters.Page <= 0 ? 1 : filters.Page;
+            filters.PageSize = filters.PageSize <= 0 ? 20 : Math.Min(filters.PageSize, 100);
+            filters.SortBy = string.IsNullOrWhiteSpace(filters.SortBy) ? "name" : filters.SortBy;
+            filters.SortDirection = string.IsNullOrWhiteSpace(filters.SortDirection) ? "asc" : filters.SortDirection;
+
+            return new DomainMaintenanceServiceFilters
+            {
+                Name = filters.Name,
+                Price = filters.Price,
+                IsActive = filters.IsActive,
+                Category = filters.Category,
+                Page = filters.Page,
+                PageSize = filters.PageSize,
+                SortBy = filters.SortBy,
+                SortDirection = filters.SortDirection
+            };
         }
     }
 }

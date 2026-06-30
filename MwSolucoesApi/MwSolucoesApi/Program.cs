@@ -50,7 +50,7 @@ try
     builder.Services.AddAuthorizationBuilder()
         .AddPolicy("AdminAccess", policy =>
         policy.RequireClaim("access_level", AccessLevels.Admin.ToString()))
-        .AddPolicy("AdminAccess", policy =>
+        .AddPolicy("Technician", policy =>
         policy.RequireClaim("role", UserRoles.Técnico.ToString()));
 
     builder.Services.AddControllers();

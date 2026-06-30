@@ -1,9 +1,10 @@
-﻿using MwSolucoes.Domain.Enums;
+﻿using MwSolucoes.Communication.Interfaces;
+using MwSolucoes.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace MwSolucoes.Communication.Requests.MaintenanceService
 {
-    public class RequestCreateMaintenanceService
+    public class RequestCreateMaintenanceService : IUniqueMaintenanceServiceData
     {
         [Required(ErrorMessage = "Nome do serviço está vazio.")]
         [StringLength(50, MinimumLength = 7, ErrorMessage = "O nome do serviço deve ter entre 10 e 50 caracteres.")]

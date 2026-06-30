@@ -55,7 +55,6 @@ namespace MwSolucoes.Domain.Entities
         }
 
         //Helper Methods
-
         public void Activate()
         {
             if (IsActive)
