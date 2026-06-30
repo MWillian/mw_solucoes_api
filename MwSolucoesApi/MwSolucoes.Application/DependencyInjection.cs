@@ -1,13 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.Services;
-using MwSolucoes.Application.UseCases.MaintenanceService.Create;
-using MwSolucoes.Application.UseCases.MaintenanceService.Deactivate;
-using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
-using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceService;
-using MwSolucoes.Application.UseCases.MaintenanceService.GetMaintenanceServices;
-using MwSolucoes.Application.UseCases.MaintenanceService.Reactivate;
-using MwSolucoes.Application.UseCases.MaintenanceService.Update;
 using MwSolucoes.Application.UseCases.ServiceRequest;
 using MwSolucoes.Application.UseCases.ServiceRequest.Accept;
 using MwSolucoes.Application.UseCases.ServiceRequest.Cancel;
@@ -26,14 +19,8 @@ namespace MwSolucoes.Application
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMaintenanceService, MaintenanceService>();
 
-            services.AddScoped<ICreateMaintenanceServiceUseCase, CreateMaintenanceServiceUseCase>();
-            services.AddScoped<IDeleteMaintenanceServiceUseCase, DeleteMaintenanceServiceUseCase>();
-            services.AddScoped<IUpdateMaintenanceServiceUseCase, UpdateMaintenanceServiceUseCase>();
-            services.AddScoped<IDeactivateMaintenanceServiceUseCase, DeactivateMaintenanceServiceUseCase>();
-            services.AddScoped<IReactivateMaintenanceServiceUseCase, ReactivateMaintenanceServiceUseCase>();
-            services.AddScoped<IGetMaintenanceServicesUseCase, GetMaintenanceServicesUseCase>();
-            services.AddScoped<IGetMaintenanceServiceByIdUseCase, GetMaintenanceServiceByIdUseCase>();
             services.AddScoped<ICreateServiceRequestUseCase, CreateServiceRequestUseCase>();
             services.AddScoped<IGetServiceRequestsUseCase, GetServiceRequestsUseCase>();
             services.AddScoped<IGetServiceRequestByIdUseCase, GetServiceRequestByIdUseCase>();
