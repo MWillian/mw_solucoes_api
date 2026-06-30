@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
+using MwSolucoes.Domain.Enums;
 using MwSolucoes.Infrastructure;
 
 using Serilog;
@@ -48,7 +49,9 @@ try
 
     builder.Services.AddAuthorizationBuilder()
         .AddPolicy("AdminAccess", policy =>
-            policy.RequireClaim("access_level", "Admin"));
+        policy.RequireClaim("access_level", AccessLevels.Admin.ToString()))
+        .AddPolicy("AdminAccess", policy =>
+        policy.RequireClaim("role", UserRoles.Técnico.ToString()));
 
     builder.Services.AddControllers();
 

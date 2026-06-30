@@ -75,6 +75,15 @@ namespace MwSolucoes.Application.Services
             return;
         }
 
+        public async Task ActivateUser(Guid id)
+        {
+            ValidateId(id);
+            var user = await _userRepository.GetById(id) ?? throw new NotFoundException(GetUsersErrorMessages.USER_NOT_FOUND);
+            user.Activate(user);
+            await _userRepository.Update(user);
+            return;
+        }
+
         // Helper Methods
         private void UpdateUserFields(Domain.Entities.User user, RequestUpdateUser request)
         {
@@ -100,6 +109,12 @@ namespace MwSolucoes.Application.Services
         private void ValidateId(Guid id)
         {
             if (id == Guid.Empty) throw new ValidationException(GetUsersErrorMessages.INVALID_USER_ID);
+        }
+
+        public async Task<ResponseGetUser> GetUserById(Guid id)
+        {
+            var user = await _userRepository.GetById(id) ?? throw new NotFoundException(GetUsersErrorMessages.USER_NOT_FOUND);
+            return UserMapper.ToResponseGetUser(user);
         }
     }
 }

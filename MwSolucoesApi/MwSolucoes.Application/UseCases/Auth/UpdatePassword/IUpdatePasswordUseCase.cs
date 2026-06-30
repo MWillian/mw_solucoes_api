@@ -1,9 +1,0 @@
-﻿using MwSolucoes.Communication.Requests.Auth;
-
-namespace MwSolucoes.Application.UseCases.Auth.UpdatePassword
-{
-    public interface IUpdatePasswordUseCase
-    {
-        Task Execute(Guid userId, RequestUpdatePassword request);
-    }
-}

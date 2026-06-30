@@ -126,6 +126,14 @@ namespace MwSolucoes.Domain.Entities
             }
             user.IsActive = false;
         }
+        public void Activate(User user)
+        {
+            if (user.IsActive)
+            {
+                throw new DomainException("Usuário já está ativo.");
+            }
+            user.IsActive = true;
+        }
         public void UpdateUser(string name, string email, string phoneNumber, string cpf, int role, int accessLevel, Address address)
         {
             Validate(name, email, PasswordHash, phoneNumber, cpf, role, accessLevel, address);
