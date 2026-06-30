@@ -7,14 +7,17 @@ using MwSolucoes.Infrastructure;
 using Serilog;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
-
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
     .CreateBootstrapLogger();
 
-builder.Host.UseSerilog();
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 try
 {

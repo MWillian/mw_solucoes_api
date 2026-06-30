@@ -1,4 +1,5 @@
 ﻿using MwSolucoes.Domain.CepValidation;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
@@ -39,7 +40,7 @@ namespace MwSolucoes.Infrastructure.CepValidation
                 {
                     return false;
                 }
-
+                    
                 return viaCepResponse.Erro != true;
             }
             catch (HttpRequestException)

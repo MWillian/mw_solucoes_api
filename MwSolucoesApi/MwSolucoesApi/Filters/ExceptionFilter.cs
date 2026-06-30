@@ -8,6 +8,11 @@ namespace MwSolucoes.Api.Filters
 {
     public class ExceptionFilter : IExceptionFilter
     {
+        private readonly ILogger<ExceptionFilter> _logger;
+        public ExceptionFilter(ILogger<ExceptionFilter> logger)
+        {
+            _logger = logger;
+        }
         public void OnException(ExceptionContext context)
         {
             if (context.Exception is MwSolucoesException)
@@ -26,12 +31,14 @@ namespace MwSolucoes.Api.Filters
 
             context.HttpContext.Response.StatusCode = exception.StatusCode;
             context.Result = new ObjectResult(errorResponse);
+            _logger.LogError(context.Exception, $"An error occurred: {context.Exception.Message}");
         }
         private void ThrowUnknownError(ExceptionContext context)
         {
             var errorResponse = new ResponseError(ResourceErrorMessages.INTERNAL_ERROR);
             context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Result = new ObjectResult(errorResponse);
+            _logger.LogError(context.Exception, $"An unknown error occurred: {context.Exception.Message}");
         }
     }
 }
