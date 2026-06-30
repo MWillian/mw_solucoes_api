@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MwSolucoes.Application.Interfaces;
-using MwSolucoes.Application.UseCases.User.GetUser;
 using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
@@ -32,12 +31,12 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetMe([FromServices] IGetUserByIdUseCase useCase)
+        public async Task<IActionResult> GetMe()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
 
-            var user = await useCase.Execute(userId);
+            var user = await _userService.GetUserById(userId);
             return Ok(user);
         }
 
@@ -46,11 +45,11 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUser([FromRoute] Guid Id, [FromServices] IGetUserByIdUseCase useCase)
+        public async Task<IActionResult> GetUser([FromRoute] Guid Id)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
-            var user = await useCase.Execute(Id);
+            var user = await _userService.GetUserById(Id);
             return Ok(user);
         }
 
@@ -81,11 +80,11 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         }
 
         [Authorize(Policy = "AdminAccess")]
-        [HttpDelete("{id:guid}")]
+        [HttpPatch("deactivate/{id:guid}")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Deactivate([FromRoute] Guid id)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var _)) return Unauthorized();
@@ -103,6 +102,19 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
             await _userService.DeactivateUser(userId);
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpPatch("activate/{id:guid}")]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> Activate([FromRoute] Guid id)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
+            if (!Guid.TryParse(userIdClaim, out _)) return Unauthorized();
+            await _userService.ActivateUser(id);
             return NoContent();
         }
     }

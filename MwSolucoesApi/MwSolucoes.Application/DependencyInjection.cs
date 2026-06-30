@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.Services;
-using MwSolucoes.Application.UseCases.Auth.Login;
-using MwSolucoes.Application.UseCases.Auth.UpdatePassword;
 using MwSolucoes.Application.UseCases.MaintenanceService.Create;
 using MwSolucoes.Application.UseCases.MaintenanceService.Deactivate;
 using MwSolucoes.Application.UseCases.MaintenanceService.Delete;
@@ -15,8 +13,6 @@ using MwSolucoes.Application.UseCases.ServiceRequest.Accept;
 using MwSolucoes.Application.UseCases.ServiceRequest.Cancel;
 using MwSolucoes.Application.UseCases.ServiceRequest.Finish;
 using MwSolucoes.Application.UseCases.ServiceRequest.Reject;
-using MwSolucoes.Application.UseCases.User.GetUser;
-using MwSolucoes.Application.UseCases.User.GetUsers;
 
 namespace MwSolucoes.Application
 {
@@ -28,14 +24,9 @@ namespace MwSolucoes.Application
         }
         public static void AddUseCases(this IServiceCollection services)
         {
-            services.AddScoped<IGetUserByIdUseCase, GetUserByIdUseCase>();
-            services.AddScoped<IGetUsersUseCase, GetUsersUseCase>();
-
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
 
-            services.AddScoped<ILoginUseCase, LoginUseCase>();
-            services.AddScoped<IUpdatePasswordUseCase, UpdatePasswordUseCase>();
             services.AddScoped<ICreateMaintenanceServiceUseCase, CreateMaintenanceServiceUseCase>();
             services.AddScoped<IDeleteMaintenanceServiceUseCase, DeleteMaintenanceServiceUseCase>();
             services.AddScoped<IUpdateMaintenanceServiceUseCase, UpdateMaintenanceServiceUseCase>();
