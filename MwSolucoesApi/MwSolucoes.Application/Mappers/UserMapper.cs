@@ -4,6 +4,7 @@ using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Security.Tokens;
 using MwSolucoes.Domain.ValueObjects;
+using DomainUserFilters = MwSolucoes.Domain.Repositories.Filters.UserFilters;
 
 namespace MwSolucoes.Application.Mappers
 {
@@ -63,6 +64,30 @@ namespace MwSolucoes.Application.Mappers
                 Cidade = user.Address.Cidade,
                 Estado = user.Address.Estado,
                 Cep = user.Address.Cep,
+            };
+        }
+        public static DomainUserFilters MapToDomainFilters(UserFilters? filters)
+        {
+            if (filters is null)
+            {
+                return new DomainUserFilters
+                {
+                    Page = 1,
+                    PageSize = 20,
+                    SortBy = "name",
+                    SortDirection = "asc"
+                };
+            }
+
+            return new DomainUserFilters
+            {
+                Name = filters.Name,
+                Email = filters.Email,
+                IsActive = filters.IsActive,
+                Page = filters.Page <= 0 ? 1 : filters.Page,
+                PageSize = filters.PageSize <= 0 ? 20 : Math.Min(filters.PageSize, 100),
+                SortBy = string.IsNullOrWhiteSpace(filters.SortBy) ? "name" : filters.SortBy,
+                SortDirection = string.IsNullOrWhiteSpace(filters.SortDirection) ? "asc" : filters.SortDirection
             };
         }
     }

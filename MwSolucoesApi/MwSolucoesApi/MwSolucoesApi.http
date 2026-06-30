@@ -1,5 +1,5 @@
 @MwSolucoesApi_HostAddress = https://localhost:7259
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MDNiNjkzMy1mYjkyLTQyZTAtOWE3Ni04OTgxNjA0ZmIyODQiLCJuYW1laWQiOiI0MDNiNjkzMy1mYjkyLTQyZTAtOWE3Ni04OTgxNjA0ZmIyODQiLCJ1bmlxdWVfbmFtZSI6Ik1hdGhldXMgV2lsbGlhbiBkbyBOYXNjaW1lbnRvIiwicm9sZSI6IkNsaWVudGUiLCJhY2Nlc3NfbGV2ZWwiOiJDb211bSIsImp0aSI6ImE0YWZlZWQ4LTkyNWItNGQ3NC05MjZkLWEzYTNjMjcwZGY3MCIsImlhdCI6MTc4MjMzMDk3NiwibmJmIjoxNzgyMzMwOTc2LCJleHAiOjE3ODIzMzQ1NzYsImlzcyI6Ik13U29sdWNvZXMuQXBpIiwiYXVkIjoiTXdTb2x1Y29lcy5DbGllbnQifQ.rqNPzJH8cvLORWS-weiXCfZ1QQTS-LIestjjFjVO2zs
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjYTVkOTI0Yi1lMGZmLTQ5MGYtOTQ5Zi1lY2ExZjczNTVmODkiLCJuYW1laWQiOiJjYTVkOTI0Yi1lMGZmLTQ5MGYtOTQ5Zi1lY2ExZjczNTVmODkiLCJ1bmlxdWVfbmFtZSI6Ik1hdGhldXMgV2lsbGlhbiIsInJvbGUiOiJDbGllbnRlIiwiYWNjZXNzX2xldmVsIjoiQ29tdW0iLCJqdGkiOiI2MmM1YTUyMi1jMjFkLTRmMTMtYjkyMS03YWU1Nzg4ODBiMTQiLCJpYXQiOjE3ODI3ODg3MzMsIm5iZiI6MTc4Mjc4ODczMywiZXhwIjoxNzgyNzkyMzMzLCJpc3MiOiJNd1NvbHVjb2VzLkFwaSIsImF1ZCI6Ik13U29sdWNvZXMuQ2xpZW50In0.HcSTFvuaGUdzjufMsC--aXqzK4ITdg-9O5TAmIp6lpQ
 
 GET {{MwSolucoesApi_HostAddress}}/api/testconnection/check
 Accept: application/json
@@ -47,13 +47,13 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 {
   "Name": "Matheus Willian",
-  "Email": "matheus@dxc.com",
+  "Email": "matheus.willian@dxc.com",
   "PhoneNumber" : "11999999299",
-  "Cpf": "12549383460",
+  "Cpf": "53056582415",
   "Password": "12345678",
   "ConfirmPassword": "12345678",
   "Logradouro": "Rua Teste",
-  "Numero": "123",
+  "Numero": "12",
   "Cep": "57040530",
   "Bairro": "Bairro Teste",
   "Cidade": "Cidade Teste",

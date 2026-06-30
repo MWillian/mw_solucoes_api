@@ -76,17 +76,19 @@ namespace MwSolucoes.Infrastructure.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
-        public async Task<bool> ExistUserWithEmail(string email)
+        public async Task<bool> ExistUserWithEmail(string email, Guid? currentUserId = null)
         {
-            return await _context.Users.AnyAsync(u => u.Email.Equals(email));
+            return await _context.Users.AnyAsync(u => u.Email.Equals(email) && u.Id != currentUserId);
         }
-        public async Task<bool> ExistUserWithPhoneNumber(string phoneNumber)
+        public async Task<bool> ExistUserWithPhoneNumber(string phoneNumber, Guid? currentUserId = null)
         {
-            return await _context.Users.AnyAsync(u => u.PhoneNumber == phoneNumber);
+            var phoneToSearch = new PhoneNumber(phoneNumber);
+            return await _context.Users.AnyAsync(u => u.PhoneNumber.Equals(phoneToSearch) && u.Id != currentUserId);
         }
-        public async Task<bool> ExistUserByCpf(string cpf)
+        public async Task<bool> ExistUserByCpf(string cpf, Guid? currentUserId = null)
         {
-            return await _context.Users.AnyAsync(u => u.CPF == cpf);
+            var cpfToSearch = new Cpf(cpf);
+            return await _context.Users.AnyAsync(u => u.CPF == cpfToSearch && u.Id != currentUserId);
         }
 
         public async Task<bool> IsActive(Guid id)

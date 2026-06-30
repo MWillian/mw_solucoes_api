@@ -46,7 +46,7 @@ namespace MwSolucoes.Infrastructure
                 client.Timeout = TimeSpan.FromSeconds(5);
             });
         }
-        public static void AddPasswordEncrypter(IServiceCollection services)
+        private static void AddPasswordEncrypter(IServiceCollection services)
         {
             services.AddScoped<IPasswordEncrypter, Bcrypter>();
         }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MwSolucoes.Exception.ResouceErrors.UseCaseErrorMessages;
+using System.ComponentModel.DataAnnotations;
 
 namespace MwSolucoes.Communication.Requests.Auth
 {
@@ -10,7 +11,8 @@ namespace MwSolucoes.Communication.Requests.Auth
         [Required(ErrorMessage = "Nova senha inválida.")]
         public string NewPassword { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "A senha de confirmação e a nova senha devem ser iguais.")]
+        [Required]
+        [Compare("Password", ErrorMessageResourceType = typeof(RegisterUserErrorMessages), ErrorMessageResourceName = "DIFERENT_PASSWORDS")]
         public string ConfirmNewPassword { get; set; } = string.Empty;
     }
 }

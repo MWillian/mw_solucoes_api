@@ -23,7 +23,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [HttpPost]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateUser([FromBody] RequestRegisterUser request)
+        public async Task<IActionResult> Create([FromBody] RequestRegisterUser request)
         {
             var createdUser = await _userService.RegisterUser(request);
             return Created(string.Empty, createdUser);
@@ -73,7 +73,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Update( [FromBody] RequestUpdateUser request)
+        public async Task<IActionResult> Update([FromBody] RequestUpdateUser request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
@@ -86,7 +86,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteUser([FromServices] IDeleteUserUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromServices] IDeleteUserUseCase useCase, [FromRoute] Guid id)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var _)) return Unauthorized();
