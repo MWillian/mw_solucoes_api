@@ -25,11 +25,12 @@ namespace MwSolucoes.Application.Services
         }
 
         // Main methods
-        public async Task<ResponseUpdateServiceRequest> AcceptServiceRequest(Guid serviceRequestId)
+        public async Task<ResponseUpdateServiceRequest> AcceptServiceRequest(Guid serviceRequestId, Guid userId)
         {
-            var ServiceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
-            await _serviceRequestRepository.Update(ServiceRequest);
-            return ServiceRequestMapper.ToResponseUpdateServiceRequest(ServiceRequest);
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            serviceRequest.AssignTechnician(userId);
+            await _serviceRequestRepository.Update(serviceRequest);
+            return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
         public async Task<ResponseCreateServiceRequest> CreateServiceRequest(RequestCreateServiceRequest request, Guid userId)
@@ -89,19 +90,18 @@ namespace MwSolucoes.Application.Services
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
-        public async Task<Communication.Responses.PagedResult<ResponseGetServiceRequest>> GetServiceRequests(RequestGetServiceRequests filters, Guid userId, bool canViewAll)
+        public async Task<Communication.Responses.PagedResult<ResponseGetServiceRequest>> GetServiceRequests(RequestGetServiceRequests filters, Guid userId, bool isQueue)
         {
             filters ??= new RequestGetServiceRequests();
 
             filters.Page = filters.Page <= 0 ? 1 : filters.Page;
             filters.PageSize = filters.PageSize <= 0 ? 20 : Math.Min(filters.PageSize, 100);
-            filters.SortBy = string.IsNullOrWhiteSpace(filters.SortBy) ? "createdAt" : filters.SortBy;
-            filters.SortDirection = string.IsNullOrWhiteSpace(filters.SortDirection) ? "desc" : filters.SortDirection;
+            filters.SortBy = filters.SortBy?.Trim().ToLower() ?? "createdat";
+            filters.SortDirection = filters.SortDirection?.Trim().ToLower() ?? "desc";
 
             var repositoryFilters = ServiceRequestMapper.MapToDomainFilters(filters);
 
-            Guid? scopedUserId = canViewAll ? null : userId;
-            var serviceRequests = await _serviceRequestRepository.GetAll(repositoryFilters, scopedUserId);
+            var serviceRequests = await _serviceRequestRepository.GetAll(repositoryFilters, userId, isQueue);
             return ServiceRequestMapper.ToResponseGetServiceRequests(serviceRequests);
         }
 
@@ -161,5 +161,6 @@ namespace MwSolucoes.Application.Services
                 .Select(service => new ServiceRequestItem(service.Id, service.Price))
                 .ToList();
         }
+
     }
 }

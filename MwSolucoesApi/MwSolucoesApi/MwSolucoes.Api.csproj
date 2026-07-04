@@ -25,4 +25,8 @@
     <ProjectReference Include="..\MwSolucoes.Infrastructure\MwSolucoes.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
+
 </Project>

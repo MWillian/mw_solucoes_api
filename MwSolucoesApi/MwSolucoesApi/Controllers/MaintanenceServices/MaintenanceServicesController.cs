@@ -9,19 +9,22 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MaintenanceServicesController : ControllerBase
+    public class MaintenanceServicesController : MainController
     {
         private readonly IMaintenanceService _maintenanceService;
         public MaintenanceServicesController(IMaintenanceService maintenanceService)
         {
             _maintenanceService = maintenanceService;
         }
+
         [HttpGet]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(PagedResult<ResponseGetMaintenanceService>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMaintenanceServices([FromQuery] MaintenanceServiceFilters filters)
         {
+            var userId = GetUserId();
+
             var response = await _maintenanceService.GetMaintenanceServices(filters);
             return Ok(response);
         }
@@ -33,6 +36,8 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(typeof(ResponseGetMaintenanceService), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMaintenanceServiceById([FromRoute] int id)
         {
+            var userId = GetUserId();
+
             var response = await _maintenanceService.GetMaintenanceServiceById(id);
             return Ok(response);
         }
@@ -44,6 +49,8 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(typeof(ResponseCreateMaintenanceService), StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateMaintenanceService([FromBody] RequestCreateMaintenanceService request)
         {
+            var userId = GetUserId();
+
             var response = await _maintenanceService.CreateMaintenanceService(request);
             return Created(string.Empty, response);
         }
@@ -56,6 +63,8 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteMaintenanceService([FromRoute] int id)
         {
+            var userId = GetUserId();
+
             await _maintenanceService.DeleteMaintenanceService(id);
             return NoContent();
         }
@@ -69,6 +78,8 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(typeof(ResponseUpdateMaintenanceService), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateMaintenanceService([FromRoute] int id, [FromBody] RequestUpdateMaintenanceService request)
         {
+            var userId = GetUserId();
+
             var response = await _maintenanceService.UpdateMaintenanceService(id, request);
             return Ok(response);
         }
@@ -82,6 +93,8 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeactivateMaintenanceService([FromRoute] int id)
         {
+            var userId = GetUserId();
+
             await _maintenanceService.DeactivateMaintenanceService(id);
             return NoContent();
         }
@@ -95,6 +108,8 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> ReactivateMaintenanceService([FromRoute] int id)
         {
+            var userId = GetUserId();
+
             await _maintenanceService.Reactivate(id);
             return NoContent();
         }

@@ -5,13 +5,12 @@ using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.Login;
-using System.Security.Claims;
 
 namespace MwSolucoes.Api.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : MainController
     {
         [HttpPost("login")]
         [AllowAnonymous]
@@ -32,9 +31,7 @@ namespace MwSolucoes.Api.Controllers.Auth
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdatePassword([FromBody] RequestUpdatePassword request, [FromServices] IAuthService authService)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
-
+            var userId = GetUserId();
             await authService.UpdatePasswordAsync(userId, request);
 
             return NoContent();
