@@ -20,7 +20,8 @@ namespace MwSolucoes.Domain.Entities
         public decimal? LaborCost { get; private set; }
         public decimal? PartsCost { get; private set; }
         public bool RequiresDownPayment { get; private set; }
-
+        public Guid? TechnicianId { get; private set; }
+        public User? Technician { get; private set; }
         public User User { get; private set; } = null!;
         public List<ServiceRequestHistory> Histories { get; private set; } = [];
 
@@ -92,6 +93,11 @@ namespace MwSolucoes.Domain.Entities
         {
             if (value.HasValue && value.Value < 0)
                 throw new DomainException($"{fieldName} não pode ser negativo.");
+        }
+        public void AssignTechnician(Guid technicianId)
+        {
+            TechnicianId = technicianId;
+            Status = ServiceRequestStatus.InProgress; 
         }
 
         public void StartProgress()

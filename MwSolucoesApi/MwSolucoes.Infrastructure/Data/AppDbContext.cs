@@ -100,6 +100,11 @@ namespace MwSolucoes.Infrastructure.Data
                     .WithOne(e => e.ServiceRequest)
                     .HasForeignKey(e => e.ServiceRequestId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Technician)
+                    .WithMany()
+                    .HasForeignKey(e => e.TechnicianId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<ServiceRequestItem>(entity =>

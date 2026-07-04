@@ -4,13 +4,12 @@ using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
-using System.Security.Claims;
 
 namespace MwSolucoes.Api.Controllers.Usuarios
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : MainController
     {
         private readonly IUserService _userService;
         public UserController(IUserService userService)
@@ -33,8 +32,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMe()
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+            var userId = GetUserId();
 
             var user = await _userService.GetUserById(userId);
             return Ok(user);
@@ -47,8 +45,8 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUser([FromRoute] Guid Id)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+            var _ = GetUserId();
+
             var user = await _userService.GetUserById(Id);
             return Ok(user);
         }
@@ -59,8 +57,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(PagedResult<ResponseGetUser>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers([FromQuery] UserFilters filters)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out _)) return Unauthorized();
+            var _ = GetUserId();
 
             var users = await _userService.GetUserList(filters);
             return Ok(users);
@@ -71,10 +68,10 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Update([FromBody] RequestUpdateUser request)
+        public async Task<IActionResult> UpdateMe([FromBody] RequestUpdateUser request)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+            var userId = GetUserId();
+
             var updatedUser = await _userService.UpdateUser(userId, request);
             return Ok(updatedUser);
         }
@@ -86,8 +83,8 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Deactivate([FromRoute] Guid id)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out var _)) return Unauthorized();
+            var _ = GetUserId();
+
             await _userService.DeactivateUser(id);
             return NoContent();
         }
@@ -99,8 +96,8 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeactivateMe()
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+            var userId = GetUserId();
+
             await _userService.DeactivateUser(userId);
             return NoContent();
         }
@@ -112,8 +109,8 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Activate([FromRoute] Guid id)
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
-            if (!Guid.TryParse(userIdClaim, out _)) return Unauthorized();
+            var _ = GetUserId();
+
             await _userService.ActivateUser(id);
             return NoContent();
         }

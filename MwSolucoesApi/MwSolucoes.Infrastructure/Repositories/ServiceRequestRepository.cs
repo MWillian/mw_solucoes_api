@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MwSolucoes.Domain.Entities;
+using MwSolucoes.Domain.Enums;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Repositories.Filters;
 using MwSolucoes.Infrastructure.Data;
@@ -14,12 +15,6 @@ namespace MwSolucoes.Infrastructure.Repositories
         public ServiceRequestRepository(AppDbContext context)
         {
             _context = context;
-        }
-
-        public async Task Add(ServiceRequest serviceRequest)
-        {
-            await _context.ServiceRequests.AddAsync(serviceRequest);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> TryAdd(ServiceRequest serviceRequest)
@@ -48,27 +43,32 @@ namespace MwSolucoes.Infrastructure.Repositories
                 .Include(serviceRequest => serviceRequest.Items)
                 .FirstOrDefaultAsync(m => m.Protocol.Equals(protocol));
 
-        public async Task<PagedResult<ServiceRequest>> GetAll(ServiceRequestFilters filters, Guid? userId)
+        public async Task<PagedResult<ServiceRequest>> GetAll(ServiceRequestFilters filters, Guid currentUserId, bool isQueue)
         {
             var query = _context.ServiceRequests
                 .AsNoTracking()
                 .Include(serviceRequest => serviceRequest.Items)
                 .AsQueryable();
 
-            if (userId.HasValue)
+            if (isQueue)
             {
-                query = query.Where(sr => sr.UserId == userId.Value);
+                query = query.Where(sr => sr.Status == ServiceRequestStatus.Created && sr.TechnicianId == null);
+            }
+            else
+            {
+                query = query.Where(sr => sr.UserId == currentUserId || sr.TechnicianId == currentUserId);
+                if (filters.Status.HasValue)
+                {
+                    query = query.Where(sr => sr.Status == filters.Status.Value);
+                }
             }
 
-            if (filters.Status.HasValue)
-            {
-                query = query.Where(sr => sr.Status == filters.Status.Value);
-            }
 
             if (filters.CreatedAt.HasValue)
             {
-                var createdDate = filters.CreatedAt.Value.Date;
-                query = query.Where(sr => sr.CreatedAt.Date == createdDate);
+                var startDate = filters.CreatedAt.Value.Date;
+                var endDate = startDate.AddDays(1);
+                query = query.Where(sr => sr.CreatedAt.Date >= startDate && sr.CreatedAt < endDate);
             }
 
             if (!string.IsNullOrWhiteSpace(filters.Protocol))
@@ -113,15 +113,12 @@ namespace MwSolucoes.Infrastructure.Repositories
                 _ => query.OrderByDescending(sr => sr.CreatedAt)
             };
 
-            var page = filters.Page <= 0 ? 1 : filters.Page;
-            var pageSize = filters.PageSize <= 0 ? 20 : Math.Min(filters.PageSize, 100);
-
             var result = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((filters.Page - 1) * filters.PageSize)
+                .Take(filters.PageSize)
                 .ToListAsync();
 
-            return new PagedResult<ServiceRequest>(result, totalCount, page, pageSize);
+            return new PagedResult<ServiceRequest>(result, totalCount, filters.Page, filters.PageSize);
         }
 
         private static bool IsProtocolUniqueConstraintViolation(DbUpdateException exception)
