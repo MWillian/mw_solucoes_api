@@ -13,9 +13,7 @@ namespace MwSolucoes.Communication.Requests.ServiceRequest
         [Required(ErrorMessage = "A descrição inicial do problema do dispositivo está vazia.")]
         public string ReportedProblem { get; set; } = string.Empty;
         public string? TechnicalDiagnosis { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Valor de mão de obra não pode ser negativo.")]
         public decimal LaborCost { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Valor de peças não pode ser negativo.")]
         public decimal PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
 

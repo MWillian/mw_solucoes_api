@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MwSolucoes.Application.UseCases.ServiceRequest;
-using MwSolucoes.Application.UseCases.ServiceRequest.Accept;
-using MwSolucoes.Application.UseCases.ServiceRequest.Cancel;
-using MwSolucoes.Application.UseCases.ServiceRequest.Finish;
-using MwSolucoes.Application.UseCases.ServiceRequest.Reject;
+using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.ServiceRequest;
@@ -17,6 +13,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
     [ApiController]
     public class ServiceRequestController : ControllerBase
     {
+        private readonly IServiceRequestService _serviceRequestService;
+        public ServiceRequestController(IServiceRequestService serviceRequestService)
+        {
+            _serviceRequestService = serviceRequestService;
+        }
+
         [HttpPost()]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -24,12 +26,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ResponseCreateServiceRequest), StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateServiceRequest([FromBody] RequestCreateServiceRequest request, [FromServices] ICreateServiceRequestUseCase useCase)
+        public async Task<IActionResult> CreateServiceRequest([FromBody] RequestCreateServiceRequest request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
 
-            var createdServiceRequest = await useCase.Execute(request, userId);
+            var createdServiceRequest = await _serviceRequestService.CreateServiceRequest(request, userId);
             return Created(string.Empty, createdServiceRequest);
         }
 
@@ -38,12 +40,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PagedResult<ResponseGetServiceRequest>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetServiceRequests([FromQuery] RequestGetServiceRequests request, [FromServices] IGetServiceRequestsUseCase useCase)
+        public async Task<IActionResult> GetServiceRequests([FromQuery] RequestGetServiceRequests request)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
             var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            var serviceRequests = await useCase.Execute(request, userId, canViewAll);
+            var serviceRequests = await _serviceRequestService.GetServiceRequests(request, userId, canViewAll);
             return Ok(serviceRequests);
         }
 
@@ -53,12 +55,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseGetServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetServiceRequestsById([FromServices] IGetServiceRequestByIdUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> GetServiceRequestsById([FromRoute] Guid id)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
             var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            var serviceRequest = await useCase.Execute(id, userId, canViewAll);
+            var serviceRequest = await _serviceRequestService.GetServiceRequestById(id, userId, canViewAll);
             return Ok(serviceRequest);
         }
 
@@ -69,9 +71,9 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateServiceRequestById([FromServices] IUpdateServiceRequestUseCase useCase, [FromRoute] Guid id, [FromBody] RequestUpdateServiceRequest request)
+        public async Task<IActionResult> UpdateServiceRequestById([FromRoute] Guid id, [FromBody] RequestUpdateServiceRequest request)
         {
-            var response = await useCase.Execute(id, request);
+            var response = await _serviceRequestService.UpdateServiceRequest(id, request);
             return Ok(response);
         }
 
@@ -83,12 +85,12 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteServiceRequestById([FromServices] IDeleteServiceRequestUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> DeleteServiceRequestById([FromRoute] Guid id)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(ClaimTypes.Sid);
             if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
             var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            await useCase.Execute(id, userId, canViewAll);
+            await _serviceRequestService.DeleteServiceRequest(id, userId, canViewAll);
             return NoContent();
         }
 
@@ -98,9 +100,9 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> AcceptServiceRequest([FromServices] IAcceptServiceRequestUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> AcceptServiceRequest([FromRoute] Guid id)
         {
-            var response = await useCase.Execute(id);
+            var response = await _serviceRequestService.AcceptServiceRequest(id);
             return Ok(response);
         }
 
@@ -110,9 +112,9 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> RejectServiceRequest([FromServices] IRejectServiceRequestUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> RejectServiceRequest([FromRoute] Guid id)
         {
-            var response = await useCase.Execute(id);
+            var response = await _serviceRequestService.RejectServiceRequest(id);
             return Ok(response);
         }
 
@@ -122,9 +124,9 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> FinishServiceRequest([FromServices] IFinishServiceRequestUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> FinishServiceRequest([FromRoute] Guid id)
         {
-            var response = await useCase.Execute(id);
+            var response = await _serviceRequestService.FinishServiceRequest(id);
             return Ok(response);
         }
 
@@ -134,9 +136,9 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> CancelServiceRequest([FromServices] ICancelServiceRequestUseCase useCase, [FromRoute] Guid id)
+        public async Task<IActionResult> CancelServiceRequest([FromRoute] Guid id)
         {
-            var response = await useCase.Execute(id);
+            var response = await _serviceRequestService.CancelServiceRequest(id);
             return Ok(response);
         }
     }
