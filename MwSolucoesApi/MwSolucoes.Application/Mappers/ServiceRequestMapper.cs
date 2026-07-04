@@ -2,6 +2,8 @@
 using MwSolucoes.Communication.Responses.ServiceRequest;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Enums;
+using DomainServiceRequestFilters = MwSolucoes.Domain.Repositories.Filters.ServiceRequestFilters;
+
 
 namespace MwSolucoes.Application.Mappers
 {
@@ -90,6 +92,21 @@ namespace MwSolucoes.Application.Mappers
             );
             return newUser;
         }
+        public static DomainServiceRequestFilters MapToDomainFilters(RequestGetServiceRequests filters)
+        {
+            return new DomainServiceRequestFilters
+            {
+                Status = filters.Status,
+                CreatedAt = filters.CreatedAt,
+                Protocol = filters.Protocol,
+                EquipmentType = filters.EquipmentType,
+                LaborCost = filters.LaborCost,
+                PartsCost = filters.PartsCost,
+                Page = filters.Page,
+                PageSize = filters.PageSize,
+                SortBy = filters.SortBy,
+                SortDirection = filters.SortDirection
+            };
+        }
     }
 }
-    
