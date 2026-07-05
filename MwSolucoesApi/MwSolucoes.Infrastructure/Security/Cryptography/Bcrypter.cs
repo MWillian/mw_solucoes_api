@@ -6,7 +6,7 @@ namespace MwSolucoes.Infrastructure.Security.Cryptography
     {
         public string Encrypt(string password)
         {
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
             return passwordHash;
         }
 

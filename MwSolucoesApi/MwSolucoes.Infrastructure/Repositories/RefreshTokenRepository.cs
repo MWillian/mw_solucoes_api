@@ -47,5 +47,11 @@ namespace MwSolucoes.Infrastructure.Repositories
                     setters.SetProperty(rt => rt.IsRevoked, true)
                 );
         }
+
+        public async Task<int> DeleteExpiredTokensAsync(DateTime limitDate)
+        {
+            int deletados = await _context.RefreshTokens.Where(rt => rt.ExpiresAt < limitDate).ExecuteDeleteAsync();
+            return deletados;
+        }
     }
 }

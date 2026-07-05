@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
+using MwSolucoes.Api.BackgroundServices;
 using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
 using MwSolucoes.Domain.Enums;
@@ -105,14 +105,23 @@ try
         .AddPolicy("Technician", policy =>
         policy.RequireClaim("role", UserRoles.Técnico.ToString()));
 
+    builder.Services.AddHostedService<TokenCleanupWorker>();
+
     builder.Services.AddControllers();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddMvc(options => options.Filters.Add<ExceptionFilter>());
 
+    builder.Services.AddHsts(options =>
+    {
+        options.IncludeSubDomains = true;
+        options.MaxAge = TimeSpan.FromDays(365);
+    });
+
     var app = builder.Build();
 
     app.UseHttpsRedirection();
+
     if (!app.Environment.IsDevelopment())
     {
         app.UseHsts();
