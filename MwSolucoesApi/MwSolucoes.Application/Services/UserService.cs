@@ -4,6 +4,7 @@ using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.CepValidation;
+using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
 using MwSolucoes.Domain.Security.Tokens;
@@ -18,15 +19,18 @@ namespace MwSolucoes.Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IPasswordEncrypter _passwordEncrypter;
         private readonly ICepValidator _cepValidator;
         private readonly ITokenGenerator _tokenGenerator;
-        public UserService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ICepValidator cepValidator, ITokenGenerator tokenGenerator)
+
+        public UserService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ICepValidator cepValidator, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _passwordEncrypter = passwordEncrypter;
             _cepValidator = cepValidator;
             _tokenGenerator = tokenGenerator;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         //Main methods
@@ -40,7 +44,12 @@ namespace MwSolucoes.Application.Services
 
             await _userRepository.Add(user);
 
-            return UserMapper.ToResponseRegisterUser(user, _tokenGenerator);
+            var accessToken = _tokenGenerator.GenerateToken(user);
+            var refreshTokenString = _tokenGenerator.GenerateRefreshToken();
+            var refreshTokenEntity = new RefreshToken(refreshTokenString, DateTime.UtcNow.AddDays(7), user.Id);
+            await _refreshTokenRepository.Add(refreshTokenEntity);
+
+            return UserMapper.ToResponseRegisterUser(user, accessToken, refreshTokenString);
         }
 
         public async Task<ResponseUpdateUser> UpdateUser(Guid id, RequestUpdateUser request)
@@ -57,7 +66,7 @@ namespace MwSolucoes.Application.Services
             return UserMapper.ToResponseUpdateUser(user);
         }
 
-        public async Task<PagedResult<ResponseGetUser>> GetUserList(UserFilters filters)
+        public async Task<Communication.Responses.PagedResult<ResponseGetUser>> GetUserList(UserFilters filters)
         {
             var repositoryFilters = UserMapper.MapToDomainFilters(filters);
 

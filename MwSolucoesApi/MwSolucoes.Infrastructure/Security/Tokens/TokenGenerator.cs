@@ -3,6 +3,7 @@ using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Security.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MwSolucoes.Infrastructure.Security.Tokens
@@ -44,6 +45,14 @@ namespace MwSolucoes.Infrastructure.Security.Tokens
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(securityToken);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }
