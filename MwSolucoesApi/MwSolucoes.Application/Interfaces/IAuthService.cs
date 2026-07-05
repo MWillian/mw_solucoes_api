@@ -6,7 +6,9 @@ namespace MwSolucoes.Application.Interfaces
 {
     public interface IAuthService
     {
-        public Task<ResponseLogin> LoginAsync(RequestLogin request);
-        public Task UpdatePasswordAsync(Guid userId, RequestUpdatePassword request);
+        Task<ResponseLogin> LoginAsync(RequestLogin request);
+        Task UpdatePasswordAsync(Guid userId, RequestUpdatePassword request);
+        Task LogoutAsync(string cookieToken);
+        Task<ResponseLogin> TokenRefresh(string cookieToken);
     }
 }

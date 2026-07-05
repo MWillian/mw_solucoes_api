@@ -10,20 +10,22 @@ namespace MwSolucoes.Application.Mappers
 {
     public static class UserMapper
     {
-        public static ResponseRegisterUser ToResponseRegisterUser(User user, ITokenGenerator generatedToken)
+        public static ResponseRegisterUser ToResponseRegisterUser(User user, string accessToken, string refreshToken)
         {
             return new ResponseRegisterUser
             {
                 Name = user.Name,
-                Token = generatedToken.GenerateToken(user)
+                Token = accessToken,
+                RefreshToken = refreshToken
             };
         }
-        public static ResponseLogin ToResponseLogin(User user, ITokenGenerator generatedToken)
+        public static ResponseLogin ToResponseLogin(User user, string accessToken, string refreshToken)
         {
             return new ResponseLogin
             {
                 Name = user.Name,
-                Token = generatedToken.GenerateToken(user)
+                Token = accessToken,
+                RefreshToken = refreshToken
             };
         }
         public static User ToUser(RequestRegisterUser request, string passwordHash)

@@ -22,6 +22,7 @@ namespace MwSolucoes.Application.Services
             _serviceRequestRepository = serviceRequestRepository;
             _maintenanceServiceRepository = maintenanceServiceRepository;
             _userRepository = userRepository;
+            
         }
 
         // Main methods

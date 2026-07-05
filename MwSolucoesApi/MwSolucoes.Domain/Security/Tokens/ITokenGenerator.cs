@@ -5,5 +5,6 @@ namespace MwSolucoes.Domain.Security.Tokens
     public interface ITokenGenerator
     {
         string GenerateToken(User user);
+        string GenerateRefreshToken();
     }
 }
