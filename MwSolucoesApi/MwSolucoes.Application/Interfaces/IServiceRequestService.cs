@@ -6,14 +6,13 @@ namespace MwSolucoes.Application.Interfaces
 {
     public interface IServiceRequestService
     {
-        Task<ResponseUpdateServiceRequest> AcceptServiceRequest(Guid serviceRequestId, Guid userId);
+        Task<ResponseUpdateServiceRequest> AcceptServiceRequest(Guid serviceRequestId, Guid technicianId);
         Task<ResponseCreateServiceRequest> CreateServiceRequest(RequestCreateServiceRequest request, Guid userId);
-        Task<ResponseUpdateServiceRequest> CancelServiceRequest(Guid serviceRequestId);
-        Task DeleteServiceRequest(Guid serviceRequestId, Guid userId, bool canViewAll);
-        Task<ResponseUpdateServiceRequest> FinishServiceRequest(Guid serviceRequestId);
+        Task<ResponseUpdateServiceRequest> CancelServiceRequest(Guid serviceRequestId, Guid userId);
+        Task<ResponseUpdateServiceRequest> FinishServiceRequest(Guid serviceRequestId, Guid technicianId);
         Task<PagedResult<ResponseGetServiceRequest>> GetServiceRequests(RequestGetServiceRequests filters, Guid userId, bool isQueue);
-        Task<ResponseUpdateServiceRequest> RejectServiceRequest(Guid serviceRequestId);
-        Task<ResponseUpdateServiceRequest> UpdateServiceRequest(Guid serviceRequestId, RequestUpdateServiceRequest request);
-        Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool canViewAll);
+        Task<ResponseUpdateServiceRequest> RejectServiceRequest(Guid serviceRequestId, Guid technicianId);
+        Task<ResponseUpdateServiceRequest> UpdateServiceRequest(Guid serviceRequestId, RequestUpdateServiceRequest request, Guid technicianId);
+        Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician);
     }
 }

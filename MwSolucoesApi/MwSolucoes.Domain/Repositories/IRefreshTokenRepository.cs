@@ -10,5 +10,6 @@ namespace MwSolucoes.Domain.Repositories
         Task Update(RefreshToken refreshToken);
         Task<RefreshToken?> GetByTokenWithUser(string refreshToken);
         Task RevokeAllByUserId(Guid userId);
+        Task<int> DeleteExpiredTokensAsync(DateTime limitDate);
     }
 }

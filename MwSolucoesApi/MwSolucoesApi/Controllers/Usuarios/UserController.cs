@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
@@ -17,6 +18,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             _userService = userService;
         }
 
+        [EnableRateLimiting("auth")]
         [HttpPost]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status201Created)]
@@ -45,20 +47,16 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(typeof(ResponseGetUser), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUser([FromRoute] Guid Id)
         {
-            var _ = GetUserId();
-
             var user = await _userService.GetUserById(Id);
             return Ok(user);
         }
 
-        [Authorize]
+        [Authorize(Policy = "AdminAccess")]
         [HttpGet]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(PagedResult<ResponseGetUser>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsers([FromQuery] UserFilters filters)
         {
-            var _ = GetUserId();
-
             var users = await _userService.GetUserList(filters);
             return Ok(users);
         }
@@ -83,8 +81,6 @@ namespace MwSolucoes.Api.Controllers.Usuarios
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Deactivate([FromRoute] Guid id)
         {
-            var _ = GetUserId();
-
             await _userService.DeactivateUser(id);
             return NoContent();
         }
@@ -102,15 +98,13 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             return NoContent();
         }
 
-        [Authorize]
+        [Authorize(Policy = "AdminAccess")]
         [HttpPatch("activate/{id:guid}")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Activate([FromRoute] Guid id)
         {
-            var _ = GetUserId();
-
             await _userService.ActivateUser(id);
             return NoContent();
         }

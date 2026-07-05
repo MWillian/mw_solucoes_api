@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MwSolucoes.Api.BackgroundServices;
 using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
 using MwSolucoes.Domain.Enums;
 using MwSolucoes.Infrastructure;
 
 using Serilog;
+using System.Net;
 using System.Text;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -19,6 +22,55 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
     .ReadFrom.Services(services)
     .Enrich.FromLogContext());
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendCorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "https://meusite.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+        var errorResponse = new { message = "Você atingiu o limite de requisições permitidas. Tente novamente mais tarde." };
+        await context.HttpContext.Response.WriteAsJsonAsync(errorResponse, cancellationToken);
+    };
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "global";
+
+        return RateLimitPartition.GetTokenBucketLimiter(clientIp, _ => new TokenBucketRateLimiterOptions
+        {
+            TokenLimit = 60,
+            QueueLimit = 0,
+            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+            TokensPerPeriod = 20
+        });
+    });
+
+    options.AddPolicy("auth", httpContext =>
+    {
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "auth_global";
+
+        return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMinutes(1),
+            PermitLimit = 5,
+            QueueLimit = 0
+        });
+    });
+});
 
 try
 {
@@ -53,14 +105,42 @@ try
         .AddPolicy("Technician", policy =>
         policy.RequireClaim("role", UserRoles.Técnico.ToString()));
 
+    builder.Services.AddHostedService<TokenCleanupWorker>();
+
     builder.Services.AddControllers();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddMvc(options => options.Filters.Add<ExceptionFilter>());
 
+    builder.Services.AddHsts(options =>
+    {
+        options.IncludeSubDomains = true;
+        options.MaxAge = TimeSpan.FromDays(365);
+    });
+
     var app = builder.Build();
 
     app.UseHttpsRedirection();
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
+    app.UseRouting();
+
+    app.UseCors("FrontendCorsPolicy");
+
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers.Append("X-Frame-Options", "DENY");
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none';");
+
+        await next();
+    });
+
+    app.UseRateLimiter();
 
     app.UseAuthentication();
     app.UseAuthorization();

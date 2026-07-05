@@ -127,11 +127,6 @@ namespace MwSolucoes.Infrastructure.Repositories
             return message.Contains(ProtocolUniqueIndexName, StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task DeleteById(Guid id)
-        {
-            await _context.ServiceRequests.Where(sr => sr.Id == id).ExecuteDeleteAsync();
-        }
-
         public async Task Update(ServiceRequest serviceRequest)
         {
             _context.ServiceRequests.Update(serviceRequest);

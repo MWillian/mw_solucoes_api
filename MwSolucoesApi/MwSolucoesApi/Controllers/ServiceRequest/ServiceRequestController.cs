@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses;
@@ -46,7 +47,7 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
 
         [Authorize]
         [HttpGet("newly")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PagedResult<ResponseGetServiceRequest>), StatusCodes.Status200OK)]
@@ -64,47 +65,30 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseGetServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetServiceRequestsById([FromRoute] Guid id)
+        public async Task<IActionResult> GetServiceRequestById([FromRoute] Guid id)
         {
             Guid userId = GetUserId();
-
-            var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            var serviceRequest = await _serviceRequestService.GetServiceRequestById(id, userId, canViewAll);
+            var isTechnician = User.IsInRole("Técnico");
+            var serviceRequest = await _serviceRequestService.GetServiceRequestById(id, userId, isTechnician);
             return Ok(serviceRequest);
         }
 
         [HttpPut("{id:guid}")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateServiceRequestById([FromRoute] Guid serviceRequestId, [FromBody] RequestUpdateServiceRequest request)
+        public async Task<IActionResult> UpdateServiceRequestById([FromRoute] Guid id, [FromBody] RequestUpdateServiceRequest request)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.UpdateServiceRequest(serviceRequestId, request);
+            Guid technicianId = GetUserId();
+            var response = await _serviceRequestService.UpdateServiceRequest(id, request, technicianId);
             return Ok(response);
         }
 
-        [HttpDelete("{id:guid}")]
-        [Authorize(Roles = "Técnico")]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteServiceRequestById([FromRoute] Guid id)
-        {
-            Guid userId = GetUserId();
-            var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            await _serviceRequestService.DeleteServiceRequest(id, userId, canViewAll);
-            return NoContent();
-        }
-
         [HttpPut("{id:guid}/accept")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
@@ -117,41 +101,41 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         }
 
         [HttpPut("{id:guid}/reject")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> RejectServiceRequest([FromRoute] Guid id)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.RejectServiceRequest(id);
+            Guid technicianId = GetUserId();
+            var response = await _serviceRequestService.RejectServiceRequest(id, technicianId);
             return Ok(response);
         }
 
         [HttpPut("{id:guid}/finish")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> FinishServiceRequest([FromRoute] Guid id)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.FinishServiceRequest(id);
+            Guid technicianId = GetUserId();
+            var response = await _serviceRequestService.FinishServiceRequest(id, technicianId);
             return Ok(response);
         }
 
         [HttpPut("{id:guid}/cancel")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> CancelServiceRequest([FromRoute] Guid id)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.CancelServiceRequest(id);
+            Guid userId = GetUserId();
+            var response = await _serviceRequestService.CancelServiceRequest(id, userId);
             return Ok(response);
         }
     }

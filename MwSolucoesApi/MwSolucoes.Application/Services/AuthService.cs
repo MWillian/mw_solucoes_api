@@ -1,4 +1,5 @@
-﻿using MwSolucoes.Application.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.Mappers;
 using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Communication.Requests.Login;
@@ -17,20 +18,37 @@ namespace MwSolucoes.Application.Services
         private readonly IPasswordEncrypter _passwordEncrypter;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
-        public AuthService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository)
+        private readonly ILogger<AuthService> _logger;
+
+        public AuthService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository, ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _passwordEncrypter = passwordEncrypter;
             _tokenGenerator = tokenGenerator;
             _refreshTokenRepository = refreshTokenRepository;
+            _logger = logger;
         }
         public async Task<ResponseLogin> LoginAsync(RequestLogin request)
         {
-            var user = await _userRepository.GetByEmail(request.Email) ?? throw new InvalidLoginException("Usuário/Senha incorreta.");
+            var user = await _userRepository.GetByEmail(request.Email);
+            if (user is null)
+            {
+                _logger.LogWarning("Falha de login para o usuário {Email}. Usuário não encontrado.", request.Email);
+                throw new InvalidLoginException("Usuário/Senha incorreta.");
+            }
+
             if (!user.IsActive)
+            {
+                _logger.LogWarning("Falha de login para o usuário {Email}. Usuário inativo.", request.Email);
                 throw new UnprocessableEntityException("Usuário inativo. Entre em contato com o administrador do sistema.");
+            }
             var passwordMatch = _passwordEncrypter.Verify(request.Password, user.PasswordHash);
-            if (!passwordMatch) throw new InvalidLoginException("Usuário/Senha incorreta.");
+
+            if (!passwordMatch)
+            {
+                _logger.LogWarning("Falha de login para o usuário {Email}. Senha incorreta.", request.Email);
+                throw new InvalidLoginException("Usuário/Senha incorreta.");
+            }
 
             var accessToken = _tokenGenerator.GenerateToken(user);
             var refreshTokenString = _tokenGenerator.GenerateRefreshToken();
