@@ -96,6 +96,7 @@ namespace MwSolucoes.Domain.Entities
         }
         public void AssignTechnician(Guid technicianId)
         {
+            StartProgress();
             TechnicianId = technicianId;
             Status = ServiceRequestStatus.InProgress; 
         }
@@ -120,9 +121,9 @@ namespace MwSolucoes.Domain.Entities
 
         public void Cancel()
         {
-            if (Status != ServiceRequestStatus.InProgress)
+            if (Status != ServiceRequestStatus.Created)
             {
-                throw new DomainException("A solicitação de serviço deve estar no status Em Progresso para ser Cancelada.");
+                throw new DomainException("A solicitação de serviço deve estar no status Criada para ser Cancelada.");
             }
             Status = ServiceRequestStatus.Canceled;
         }

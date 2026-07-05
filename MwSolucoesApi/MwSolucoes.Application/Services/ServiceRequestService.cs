@@ -22,14 +22,14 @@ namespace MwSolucoes.Application.Services
             _serviceRequestRepository = serviceRequestRepository;
             _maintenanceServiceRepository = maintenanceServiceRepository;
             _userRepository = userRepository;
-            
+
         }
 
         // Main methods
-        public async Task<ResponseUpdateServiceRequest> AcceptServiceRequest(Guid serviceRequestId, Guid userId)
+        public async Task<ResponseUpdateServiceRequest> AcceptServiceRequest(Guid serviceRequestId, Guid technicianId)
         {
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
-            serviceRequest.AssignTechnician(userId);
+            serviceRequest.AssignTechnician(technicianId);
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
@@ -59,33 +59,21 @@ namespace MwSolucoes.Application.Services
             throw new RequestConflictException("Não foi possível gerar um protocolo único para a solicitação. Tente novamente.");
         }
 
-        public async Task<ResponseUpdateServiceRequest> CancelServiceRequest(Guid serviceRequestId)
+        public async Task<ResponseUpdateServiceRequest> CancelServiceRequest(Guid serviceRequestId, Guid userId)
         {
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            ValidateServiceRequestOwnership(serviceRequest, userId);
             serviceRequest.Cancel();
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
-        public async Task DeleteServiceRequest(Guid serviceRequestId, Guid userId, bool canViewAll)
-        {
-            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
-
-            if (serviceRequest.Status != ServiceRequestStatus.Created)
-                throw new ErrorOnValidationException("A solicitação de serviço deve ter status Criado para ser removida.");
-
-            if (!canViewAll && serviceRequest.UserId != userId)
-                throw new NotFoundException("Solicitação de serviço não encontrada.");
-
-            await _serviceRequestRepository.DeleteById(serviceRequestId);
-        }
-
-        public async Task<ResponseUpdateServiceRequest> FinishServiceRequest(Guid serviceRequestId)
+        public async Task<ResponseUpdateServiceRequest> FinishServiceRequest(Guid serviceRequestId, Guid technicianId)
         {
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
-
+            ValidateServiceRequestTechnicianAssignment(serviceRequest, technicianId);
             serviceRequest.Finish();
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
@@ -106,31 +94,38 @@ namespace MwSolucoes.Application.Services
             return ServiceRequestMapper.ToResponseGetServiceRequests(serviceRequests);
         }
 
-        public async Task<ResponseUpdateServiceRequest> RejectServiceRequest(Guid serviceRequestId)
+        public async Task<ResponseUpdateServiceRequest> RejectServiceRequest(Guid serviceRequestId, Guid technicianId)
         {
-            var ServiceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
-            ServiceRequest.Reject();
-            await _serviceRequestRepository.Update(ServiceRequest);
-            return ServiceRequestMapper.ToResponseUpdateServiceRequest(ServiceRequest);
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            ValidateServiceRequestTechnicianAssignment(serviceRequest, technicianId);
+            serviceRequest.Reject();
+            await _serviceRequestRepository.Update(serviceRequest);
+            return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
-        public async Task<ResponseUpdateServiceRequest> UpdateServiceRequest(Guid serviceRequestId, RequestUpdateServiceRequest request)
+        public async Task<ResponseUpdateServiceRequest> UpdateServiceRequest(Guid serviceRequestId, RequestUpdateServiceRequest request, Guid technicianId)
         {
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
             ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            ValidateServiceRequestTechnicianAssignment(serviceRequest, technicianId);
 
             serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.LaborCost, request.PartsCost);
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
-        public async Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool canViewAll)
+        public async Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician)
         {
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
 
-            if (!canViewAll && serviceRequest.UserId != userId)
-                throw new NotFoundException("Solicitação de serviço não encontrada.");
+            bool isOwner = serviceRequest.UserId == userId;
+            bool isAssignedTechnician = serviceRequest.TechnicianId == userId;
+            bool isAvailableInQueue = serviceRequest.TechnicianId == null && isTechnician;
 
+            if (!isOwner && !isAssignedTechnician && !isAvailableInQueue)
+            {
+                throw new NotFoundException("Solicitação de serviço não encontrada.");
+            }
             return ServiceRequestMapper.ToResponseGetServiceRequest(serviceRequest);
         }
 
@@ -162,6 +157,15 @@ namespace MwSolucoes.Application.Services
                 .Select(service => new ServiceRequestItem(service.Id, service.Price))
                 .ToList();
         }
-
+        private void ValidateServiceRequestTechnicianAssignment(ServiceRequest serviceRequest, Guid technicianId)
+        {
+            if (serviceRequest.TechnicianId != technicianId)
+                throw new NotFoundException("Solicitação de serviço não pertence ao técnico.");
+        }
+        private void ValidateServiceRequestOwnership(ServiceRequest serviceRequest, Guid userId)
+        {
+            if (serviceRequest.UserId != userId)
+                throw new NotFoundException("Solicitação de serviço não encontrada.");
+        }
     }
 }

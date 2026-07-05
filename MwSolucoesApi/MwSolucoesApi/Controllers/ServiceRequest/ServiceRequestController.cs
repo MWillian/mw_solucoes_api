@@ -64,12 +64,11 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseGetServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetServiceRequestsById([FromRoute] Guid id)
+        public async Task<IActionResult> GetServiceRequestById([FromRoute] Guid id)
         {
             Guid userId = GetUserId();
-
-            var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            var serviceRequest = await _serviceRequestService.GetServiceRequestById(id, userId, canViewAll);
+            var isTechnician = User.IsInRole("Técnico");
+            var serviceRequest = await _serviceRequestService.GetServiceRequestById(id, userId, isTechnician);
             return Ok(serviceRequest);
         }
 
@@ -82,25 +81,9 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateServiceRequestById([FromRoute] Guid serviceRequestId, [FromBody] RequestUpdateServiceRequest request)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.UpdateServiceRequest(serviceRequestId, request);
+            Guid technicianId = GetUserId();
+            var response = await _serviceRequestService.UpdateServiceRequest(serviceRequestId, request, technicianId);
             return Ok(response);
-        }
-
-        [HttpDelete("{id:guid}")]
-        [Authorize(Roles = "Técnico")]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> DeleteServiceRequestById([FromRoute] Guid id)
-        {
-            Guid userId = GetUserId();
-            var canViewAll = User.IsInRole(UserRoles.Técnico.ToString());
-            await _serviceRequestService.DeleteServiceRequest(id, userId, canViewAll);
-            return NoContent();
         }
 
         [HttpPut("{id:guid}/accept")]
@@ -124,8 +107,8 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> RejectServiceRequest([FromRoute] Guid id)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.RejectServiceRequest(id);
+            Guid technicianId = GetUserId();
+            var response = await _serviceRequestService.RejectServiceRequest(id, technicianId);
             return Ok(response);
         }
 
@@ -137,21 +120,21 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> FinishServiceRequest([FromRoute] Guid id)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.FinishServiceRequest(id);
+            Guid technicianId = GetUserId();
+            var response = await _serviceRequestService.FinishServiceRequest(id, technicianId);
             return Ok(response);
         }
 
         [HttpPut("{id:guid}/cancel")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
         public async Task<IActionResult> CancelServiceRequest([FromRoute] Guid id)
         {
-            Guid _ = GetUserId();
-            var response = await _serviceRequestService.CancelServiceRequest(id);
+            Guid userId = GetUserId();
+            var response = await _serviceRequestService.CancelServiceRequest(id, userId);
             return Ok(response);
         }
     }
