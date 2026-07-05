@@ -23,6 +23,17 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Services(services)
     .Enrich.FromLogContext());
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendCorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "https://meusite.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -31,7 +42,8 @@ builder.Services.AddRateLimiter(options =>
     {
         context.HttpContext.Response.ContentType = "application/json";
         context.HttpContext.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
-        await context.HttpContext.Response.WriteAsJsonAsync("Você atingiu o limite de requisições permitidas. Tente novamente mais tarde.", cancellationToken);
+        var errorResponse = new { message = "Você atingiu o limite de requisições permitidas. Tente novamente mais tarde." };
+        await context.HttpContext.Response.WriteAsJsonAsync(errorResponse, cancellationToken);
     };
 
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
@@ -54,7 +66,7 @@ builder.Services.AddRateLimiter(options =>
         return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ => new FixedWindowRateLimiterOptions
         {
             Window = TimeSpan.FromMinutes(1),
-            PermitLimit = 5, 
+            PermitLimit = 5,
             QueueLimit = 0
         });
     });
@@ -100,9 +112,26 @@ try
 
     var app = builder.Build();
 
-    app.UseRateLimiter();
-
     app.UseHttpsRedirection();
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
+    app.UseRouting();
+
+    app.UseCors("FrontendCorsPolicy");
+
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers.Append("X-Frame-Options", "DENY");
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none';");
+
+        await next();
+    });
+
+    app.UseRateLimiter();
 
     app.UseAuthentication();
     app.UseAuthorization();

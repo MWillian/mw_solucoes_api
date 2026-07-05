@@ -47,7 +47,7 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
 
         [Authorize]
         [HttpGet("newly")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PagedResult<ResponseGetServiceRequest>), StatusCodes.Status200OK)]
@@ -74,21 +74,21 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         }
 
         [HttpPut("{id:guid}")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseUpdateServiceRequest), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateServiceRequestById([FromRoute] Guid serviceRequestId, [FromBody] RequestUpdateServiceRequest request)
+        public async Task<IActionResult> UpdateServiceRequestById([FromRoute] Guid id, [FromBody] RequestUpdateServiceRequest request)
         {
             Guid technicianId = GetUserId();
-            var response = await _serviceRequestService.UpdateServiceRequest(serviceRequestId, request, technicianId);
+            var response = await _serviceRequestService.UpdateServiceRequest(id, request, technicianId);
             return Ok(response);
         }
 
         [HttpPut("{id:guid}/accept")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
@@ -101,7 +101,7 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         }
 
         [HttpPut("{id:guid}/reject")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
@@ -114,7 +114,7 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
         }
 
         [HttpPut("{id:guid}/finish")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]

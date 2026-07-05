@@ -43,7 +43,7 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         }
 
         [HttpPost]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseCreateMaintenanceService), StatusCodes.Status201Created)]
@@ -54,7 +54,7 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
@@ -66,7 +66,7 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
@@ -79,7 +79,7 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         }
 
         [HttpPatch("{id:int}/deactivate")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
@@ -92,7 +92,7 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
         }
 
         [HttpPatch("{id:int}/reactivate")]
-        [Authorize(Roles = "Técnico")]
+        [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
