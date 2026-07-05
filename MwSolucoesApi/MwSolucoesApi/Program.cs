@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
@@ -19,6 +20,23 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
     .ReadFrom.Services(services)
     .Enrich.FromLogContext());
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("auth", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1); 
+        opt.PermitLimit = 10;                
+        opt.QueueLimit = 0;                  
+    });
+
+    options.AddFixedWindowLimiter("api", opt =>
+    {
+        opt.Window = TimeSpan.FromSeconds(10);
+        opt.PermitLimit = 100;              
+        opt.QueueLimit = 2;
+    });
+});
 
 try
 {
@@ -59,6 +77,8 @@ try
     builder.Services.AddMvc(options => options.Filters.Add<ExceptionFilter>());
 
     var app = builder.Build();
+
+    app.UseRateLimiter();
 
     app.UseHttpsRedirection();
 

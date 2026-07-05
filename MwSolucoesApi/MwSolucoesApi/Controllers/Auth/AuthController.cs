@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Communication.Requests.Login;
@@ -18,6 +19,7 @@ namespace MwSolucoes.Api.Controllers.Auth
             _authService = authService;
         }
 
+        [EnableRateLimiting("auth")]
         [HttpPost("login")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -61,6 +63,7 @@ namespace MwSolucoes.Api.Controllers.Auth
             return NoContent();
         }
 
+        [EnableRateLimiting("auth")]
         [HttpPost("refresh")]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshToken()
@@ -85,6 +88,7 @@ namespace MwSolucoes.Api.Controllers.Auth
             });
         }
 
+        [EnableRateLimiting("auth")]
         [HttpPut("me")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

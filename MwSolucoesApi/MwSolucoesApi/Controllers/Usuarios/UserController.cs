@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.User;
 using MwSolucoes.Communication.Responses;
@@ -17,6 +18,7 @@ namespace MwSolucoes.Api.Controllers.Usuarios
             _userService = userService;
         }
 
+        [EnableRateLimiting("auth")]
         [HttpPost]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseRegisterUser), StatusCodes.Status201Created)]
