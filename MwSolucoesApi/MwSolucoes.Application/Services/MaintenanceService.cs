@@ -39,15 +39,27 @@ namespace MwSolucoes.Application.Services
             await _maintenanceServiceRepository.Delete(service);
         }
 
-        public async Task<ResponseGetMaintenanceService> GetMaintenanceServiceById(int id)
+        public async Task<ResponseGetMaintenanceService> GetMaintenanceServiceById(int id, bool isTechnician)
         {
-            var service = await ValidadeIdAndService(id);
+            Domain.Entities.MaintenanceService? service;
+            if (!isTechnician)
+            {
+                service = await _maintenanceServiceRepository.GetActiveById(id) ?? throw new NotFoundException("Serviço de manutenção não encontrado.");
+            }
+            else
+            {
+                service = await ValidadeIdAndService(id);
+            }
             return MaintenanceServiceMapper.ToResponseGetMaintenanceService(service);
         }
 
-        public async Task<PagedResult<ResponseGetMaintenanceService>> GetMaintenanceServices(MaintenanceServiceFilters filters)
+        public async Task<PagedResult<ResponseGetMaintenanceService>> GetMaintenanceServices(MaintenanceServiceFilters filters, bool isTechnician)
         {
             var repositoryFilters = MaintenanceServiceMapper.ToDomainFilters(filters);
+            if (!isTechnician)
+            {
+                repositoryFilters.IsActive = true; 
+            }
             var services = await _maintenanceServiceRepository.GetAll(repositoryFilters);
             return MaintenanceServiceMapper.ToResponseGetMaintenanceServices(services);
         }
@@ -83,12 +95,9 @@ namespace MwSolucoes.Application.Services
 
         private async Task<Domain.Entities.MaintenanceService> ValidadeIdAndService(int id)
         {
-            if (id <= 0)
-                throw new ErrorOnValidationException("O id do serviço de manutenção é inválido.");
+            if (id <= 0) throw new ErrorOnValidationException("O id do serviço de manutenção é inválido.");
             var service = await _maintenanceServiceRepository.GetById(id);
-            if (service is null)
-                throw new NotFoundException("Serviço de manutenção não encontrado.");
-            return service;
+            return service is null ? throw new NotFoundException("Serviço de manutenção não encontrado.") : service;
         }
     }
 }

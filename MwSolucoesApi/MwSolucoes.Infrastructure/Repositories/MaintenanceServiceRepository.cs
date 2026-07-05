@@ -3,6 +3,7 @@ using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Repositories.Filters;
 using MwSolucoes.Infrastructure.Data;
+using System.Globalization;
 
 namespace MwSolucoes.Infrastructure.Repositories
 {
@@ -104,6 +105,11 @@ namespace MwSolucoes.Infrastructure.Repositories
             return await _context.MaintenanceServices
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => EF.Functions.ILike(s.Name, normalizedName));
+        }
+
+        public async Task<MaintenanceService?> GetActiveById(int id)
+        {
+            return await _context.MaintenanceServices.AsNoTracking().FirstOrDefaultAsync(s => s.Id.Equals(id) && s.IsActive);
         }
     }
 }

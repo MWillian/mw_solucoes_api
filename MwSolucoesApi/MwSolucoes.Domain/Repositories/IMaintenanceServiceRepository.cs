@@ -12,5 +12,7 @@ namespace MwSolucoes.Domain.Repositories
         Task<MaintenanceService?> GetById(int id);
         Task<List<MaintenanceService>> GetByIds(List<int> ids);
         Task<MaintenanceService?> GetByName(string name);
+        Task<MaintenanceService?> GetActiveById(int id);
     }
 }
+    
