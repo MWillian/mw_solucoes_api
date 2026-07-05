@@ -7,7 +7,9 @@ using MwSolucoes.Domain.Enums;
 using MwSolucoes.Infrastructure;
 
 using Serilog;
+using System.Net;
 using System.Text;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -23,18 +25,38 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("auth", opt =>
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.OnRejected = async (context, cancellationToken) =>
     {
-        opt.Window = TimeSpan.FromMinutes(1); 
-        opt.PermitLimit = 10;                
-        opt.QueueLimit = 0;                  
+        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync("Você atingiu o limite de requisições permitidas. Tente novamente mais tarde.", cancellationToken);
+    };
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "global";
+
+        return RateLimitPartition.GetTokenBucketLimiter(clientIp, _ => new TokenBucketRateLimiterOptions
+        {
+            TokenLimit = 60,
+            QueueLimit = 0,
+            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+            TokensPerPeriod = 20
+        });
     });
 
-    options.AddFixedWindowLimiter("api", opt =>
+    options.AddPolicy("auth", httpContext =>
     {
-        opt.Window = TimeSpan.FromSeconds(10);
-        opt.PermitLimit = 100;              
-        opt.QueueLimit = 2;
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "auth_global";
+
+        return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMinutes(1),
+            PermitLimit = 5, 
+            QueueLimit = 0
+        });
     });
 });
 

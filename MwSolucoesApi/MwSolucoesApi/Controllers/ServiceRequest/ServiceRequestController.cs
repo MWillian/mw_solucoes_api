@@ -19,7 +19,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             _serviceRequestService = serviceRequestService;
         }
 
-        [EnableRateLimiting("api")]
         [HttpPost()]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -34,7 +33,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Created(string.Empty, createdServiceRequest);
         }
 
-        [EnableRateLimiting("api")]
         [HttpGet]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -47,7 +45,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(serviceRequests);
         }
 
-        [EnableRateLimiting("api")]
         [Authorize]
         [HttpGet("newly")]
         [Authorize(Roles = "Técnico")]
@@ -62,7 +59,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(serviceRequests);
         }
 
-        [EnableRateLimiting("api")]
         [HttpGet("{id:guid}")]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -91,7 +87,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpPut("{id:guid}/accept")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -105,7 +100,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpPut("{id:guid}/reject")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -119,7 +113,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpPut("{id:guid}/finish")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -133,7 +126,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpPut("{id:guid}/cancel")]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]

@@ -18,7 +18,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
             _maintenanceService = maintenanceService;
         }
 
-        [EnableRateLimiting("api")]
         [HttpGet]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -30,7 +29,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
             return Ok(response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpGet("{id:int}")]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -44,7 +42,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
 
         }
 
-        [EnableRateLimiting("api")]
         [HttpPost]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status409Conflict)]
@@ -56,7 +53,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
             return Created(string.Empty, response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -69,7 +65,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
             return NoContent();
         }
 
-        [EnableRateLimiting("api")]
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -83,7 +78,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
             return Ok(response);
         }
 
-        [EnableRateLimiting("api")]
         [HttpPatch("{id:int}/deactivate")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -97,7 +91,6 @@ namespace MwSolucoes.Api.Controllers.MaintanenceServices
             return NoContent();
         }
 
-        [EnableRateLimiting("api")]
         [HttpPatch("{id:int}/reactivate")]
         [Authorize(Roles = "Técnico")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
