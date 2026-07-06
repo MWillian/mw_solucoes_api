@@ -10,5 +10,6 @@ namespace MwSolucoes.Domain.Repositories
         Task<ServiceRequest?> GetByProtocol(string protocol);
         Task<PagedResult<ServiceRequest>> GetAll(ServiceRequestFilters filters, Guid userId, bool isQueue);
         Task Update(ServiceRequest serviceRequest);
+        Task <List<ServiceRequestHistory>> GetHistoryByServiceRequestId(Guid serviceRequestId);
     }
 }

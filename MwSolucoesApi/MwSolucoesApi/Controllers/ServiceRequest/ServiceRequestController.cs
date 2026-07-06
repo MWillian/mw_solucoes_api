@@ -45,7 +45,6 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(serviceRequests);
         }
 
-        [Authorize]
         [HttpGet("newly")]
         [Authorize(Policy = "Technician")]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -137,6 +136,17 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             Guid userId = GetUserId();
             var response = await _serviceRequestService.CancelServiceRequest(id, userId);
             return Ok(response);
+        }
+
+        [HttpGet("timeline/{serviceRequestId:Guid}")]
+        [Authorize]
+        [ProducesResponseType(typeof(List<ResponseServiceRequestHistory>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTimeline([FromRoute] Guid serviceRequestId)
+        {
+            var timeline = await _serviceRequestService.GetTimeServiceRequestTimeline(serviceRequestId, GetUserId());
+            return Ok(timeline);
         }
     }
 }

@@ -23,8 +23,8 @@ namespace MwSolucoes.Domain.Entities
         public Guid? TechnicianId { get; private set; }
         public User? Technician { get; private set; }
         public User User { get; private set; } = null!;
-        public List<ServiceRequestHistory> Histories { get; private set; } = [];
-
+        private readonly List<ServiceRequestHistory> _histories = [];
+        public IReadOnlyCollection<ServiceRequestHistory> Histories => _histories.AsReadOnly();
         private ServiceRequest() { }
 
         public ServiceRequest(Guid userId, EquipmentType equipmentType, string brandModel, string reportedProblem, bool requiresDownPayment, IEnumerable<ServiceRequestItem> items)
@@ -98,7 +98,9 @@ namespace MwSolucoes.Domain.Entities
         {
             StartProgress();
             TechnicianId = technicianId;
-            Status = ServiceRequestStatus.InProgress; 
+            Status = ServiceRequestStatus.InProgress;
+            var history = new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.InProgress, "Técnico assumiu a solicitação de serviço.");
+            _histories.Add(history);
         }
 
         public void StartProgress()
@@ -117,6 +119,7 @@ namespace MwSolucoes.Domain.Entities
                 throw new DomainException("A solicitação de serviço deve estar no status Em Progresso para ser finalizada.");
             }
             Status = ServiceRequestStatus.Finished;
+            _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.Finished, "Serviço finalizado com sucesso."));
         }
 
         public void Cancel()
@@ -126,6 +129,7 @@ namespace MwSolucoes.Domain.Entities
                 throw new DomainException("A solicitação de serviço deve estar no status Criada para ser Cancelada.");
             }
             Status = ServiceRequestStatus.Canceled;
+            _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.Canceled, "Serviço cancelado com sucesso."));
         }
 
         public void Reject()
@@ -135,6 +139,7 @@ namespace MwSolucoes.Domain.Entities
                 throw new DomainException("A solicitação de serviço deve estar no status Criado para ser rejeitada.");
             }
             Status = ServiceRequestStatus.Rejected;
+            _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.Rejected, "O Serviço foi rejeitado."));
         }
 
         public void SetTechnicalData(string? technicalDiagnosis, decimal? laborCost, decimal? partsCost)

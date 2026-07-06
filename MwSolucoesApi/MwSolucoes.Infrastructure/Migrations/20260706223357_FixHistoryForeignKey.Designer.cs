@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MwSolucoes.Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MwSolucoes.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260706223357_FixHistoryForeignKey")]
+    partial class FixHistoryForeignKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,12 +175,17 @@ namespace MwSolucoes.Infrastructure.Migrations
                     b.Property<Guid>("ServiceRequestId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ServiceRequestId1")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceRequestId");
+
+                    b.HasIndex("ServiceRequestId1");
 
                     b.ToTable("ServiceRequestHistory", (string)null);
                 });
@@ -292,6 +300,10 @@ namespace MwSolucoes.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MwSolucoes.Domain.Entities.ServiceRequest", null)
+                        .WithMany("_histories")
+                        .HasForeignKey("ServiceRequestId1");
+
                     b.Navigation("ServiceRequest");
                 });
 
@@ -374,6 +386,8 @@ namespace MwSolucoes.Infrastructure.Migrations
                     b.Navigation("Histories");
 
                     b.Navigation("Items");
+
+                    b.Navigation("_histories");
                 });
 #pragma warning restore 612, 618
         }

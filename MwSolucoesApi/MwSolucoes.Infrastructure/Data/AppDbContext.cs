@@ -76,7 +76,6 @@ namespace MwSolucoes.Infrastructure.Data
             {
                 entity.ToTable("ServiceRequests");
                 entity.HasKey(e => e.Id);
-
                 entity.Property(e => e.Id).ValueGeneratedNever();
                 entity.Property(e => e.Protocol).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.UserId).IsRequired();
@@ -91,6 +90,11 @@ namespace MwSolucoes.Infrastructure.Data
                 entity.Property(e => e.RequiresDownPayment).IsRequired().HasDefaultValue(false);
 
                 entity.HasIndex(e => e.Protocol).IsUnique();
+
+                entity.HasMany(e => e.Histories)
+                    .WithOne(e => e.ServiceRequest)
+                    .HasForeignKey(e => e.ServiceRequestId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.User)
                     .WithMany()
@@ -126,16 +130,11 @@ namespace MwSolucoes.Infrastructure.Data
             {
                 entity.ToTable("ServiceRequestHistory");
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.ServiceRequestId).IsRequired();
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 entity.Property(e => e.Description).HasColumnType("text");
-                entity.Property(e => e.ServiceRequestId).IsRequired();
                 entity.Property(e => e.Status).IsRequired().HasConversion<int>();
                 entity.Property(e => e.CreatedAt).IsRequired();
-                entity.Property(e => e.LastUpdatedAt);
-                entity.HasOne(e => e.ServiceRequest)
-                    .WithMany(e => e.Histories)
-                    .HasForeignKey(e => e.ServiceRequestId)
-                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>

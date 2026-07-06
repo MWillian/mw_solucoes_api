@@ -22,7 +22,6 @@ namespace MwSolucoes.Application.Services
             _serviceRequestRepository = serviceRequestRepository;
             _maintenanceServiceRepository = maintenanceServiceRepository;
             _userRepository = userRepository;
-
         }
 
         // Main methods
@@ -127,6 +126,20 @@ namespace MwSolucoes.Application.Services
                 throw new NotFoundException("Solicitação de serviço não encontrada.");
             }
             return ServiceRequestMapper.ToResponseGetServiceRequest(serviceRequest);
+        }
+
+        public async Task<List<ResponseServiceRequestHistory>> GetTimeServiceRequestTimeline(Guid serviceRequestId, Guid userId)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            bool isOwner = serviceRequest.UserId == userId;
+            bool isAssignedTechnician = serviceRequest.TechnicianId == userId;
+            if (!isOwner && !isAssignedTechnician)
+            {
+                throw new NotFoundException("Solicitação de serviço não encontrada.");
+            }
+            var history = await _serviceRequestRepository.GetHistoryByServiceRequestId(serviceRequestId);
+
+            return ServiceRequestMapper.ToResponseServiceRequestHistoryList(history);
         }
 
         //Helper Methods
