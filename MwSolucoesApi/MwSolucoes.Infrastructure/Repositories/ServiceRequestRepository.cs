@@ -121,16 +121,26 @@ namespace MwSolucoes.Infrastructure.Repositories
             return new PagedResult<ServiceRequest>(result, totalCount, filters.Page, filters.PageSize);
         }
 
-        private static bool IsProtocolUniqueConstraintViolation(DbUpdateException exception)
-        {
-            var message = $"{exception.Message} {exception.InnerException?.Message}";
-            return message.Contains(ProtocolUniqueIndexName, StringComparison.OrdinalIgnoreCase);
-        }
 
         public async Task Update(ServiceRequest serviceRequest)
         {
             _context.ServiceRequests.Update(serviceRequest);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ServiceRequestHistory>> GetHistoryByServiceRequestId(Guid id)
+        {
+            return await _context.ServiceRequestHistories
+                .AsNoTracking()
+                .Where(history => history.ServiceRequestId == id)
+                .OrderBy(history => history.CreatedAt)
+                .ToListAsync();
+        }
+
+        private static bool IsProtocolUniqueConstraintViolation(DbUpdateException exception)
+        {
+            var message = $"{exception.Message} {exception.InnerException?.Message}";
+            return message.Contains(ProtocolUniqueIndexName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
