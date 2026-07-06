@@ -108,5 +108,15 @@ namespace MwSolucoes.Application.Mappers
                 SortDirection = filters.SortDirection
             };
         }
+
+        public static List<ResponseServiceRequestHistory> ToResponseServiceRequestHistoryList(List<ServiceRequestHistory> history)
+        {
+            return new List<ResponseServiceRequestHistory>(history.Select(h => new ResponseServiceRequestHistory
+            {
+                Status = h.Status,
+                Description = h.Description,
+                CreatedAt = h.CreatedAt
+            }));
+        }
     }
 }

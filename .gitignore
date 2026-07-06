@@ -17,3 +17,11 @@ appsettings.Development.json
 appsettings.Local.json
 .github/*
 .github
+
+# requisição
+
+*.http
+
+#Logs
+
+Logs/
