@@ -2,11 +2,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MwSolucoes.Domain.CepValidation;
+using MwSolucoes.Domain.Communication;
 using MwSolucoes.Domain.PdfGenerator;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
 using MwSolucoes.Domain.Security.Tokens;
+using MwSolucoes.Domain.TemplateRenderer;
 using MwSolucoes.Infrastructure.CepValidation;
+using MwSolucoes.Infrastructure.Communication;
 using MwSolucoes.Infrastructure.Data;
 using MwSolucoes.Infrastructure.PdfGenerator;
 using MwSolucoes.Infrastructure.Repositories;
@@ -26,6 +29,13 @@ namespace MwSolucoes.Infrastructure
             AddPasswordEncrypter(services);
             AddToken(services, configuration);
             AddPdfGenerator(services);
+            AddEmail(services);
+        }
+
+        private static void AddEmail(IServiceCollection services)
+        {
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ITemplateRenderer, TemplateRenderer>();
         }
 
         private static void AddDbConnection(IServiceCollection services, string connectionString)
