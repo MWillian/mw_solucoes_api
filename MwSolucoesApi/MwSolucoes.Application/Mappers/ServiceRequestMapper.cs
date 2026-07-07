@@ -120,24 +120,32 @@ namespace MwSolucoes.Application.Mappers
             }));
         }
 
-        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse)
+        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse, List<MaintenanceService> maintenanceServices, User? user)
         {
             return new ServiceRequestReportDto
             {
-                Id = serviceRequestResponse.Id,
                 Protocol = serviceRequestResponse.Protocol,
-                UserId = serviceRequestResponse.UserId,
-                Status = serviceRequestResponse.Status,
                 CreatedAt = serviceRequestResponse.CreatedAt,
-                EquipmentType = serviceRequestResponse.EquipmentType,
+                Equipment = serviceRequestResponse.EquipmentType,
                 BrandModel = serviceRequestResponse.BrandModel,
                 ReportedProblem = serviceRequestResponse.ReportedProblem,
                 TechnicalDiagnosis = serviceRequestResponse.TechnicalDiagnosis,
                 LaborCost = serviceRequestResponse.LaborCost,
                 PartsCost = serviceRequestResponse.PartsCost,
-                RequiresDownPayment = serviceRequestResponse.RequiresDownPayment,
-                ServiceIds = serviceRequestResponse.ServiceIds
+                CustomerCpf = user.CPF,
+                CustomerEmail = user.Email,
+                CustomerName = user.Name,
+                CustomerPhone = user.PhoneNumber,
+                Services = ToMaintenanceServiceItemDtoList(maintenanceServices)
             };
+        }
+        public static List<MaintenanceServiceItemDto> ToMaintenanceServiceItemDtoList(List<MaintenanceService> maintenanceServices)
+        {
+            return maintenanceServices.Select(service => new MaintenanceServiceItemDto
+            {
+                Name = service.Name,
+                Price = service.Price
+            }).ToList();
         }
     }
 }

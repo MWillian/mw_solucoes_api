@@ -149,7 +149,9 @@ namespace MwSolucoes.Application.Services
         {
             var serviceRequestResponse = await GetServiceRequestById(serviceRequestId, userId, isTechnician);
 
-            var serviceRequestDto = ServiceRequestMapper.ToServiceRequestDto(serviceRequestResponse);
+            var maintenanceServices = await _maintenanceServiceRepository.GetByIds(serviceRequestResponse.ServiceIds);
+            var customer = await _userRepository.GetById(serviceRequestResponse.UserId) ?? throw new NotFoundException("Usuário não encontrado.");
+            var serviceRequestDto = ServiceRequestMapper.ToServiceRequestDto(serviceRequestResponse, maintenanceServices, customer);
             var pdfBytes = _pdfGenerator.GenerateOrderServicePdf(serviceRequestDto);
 
             return pdfBytes;

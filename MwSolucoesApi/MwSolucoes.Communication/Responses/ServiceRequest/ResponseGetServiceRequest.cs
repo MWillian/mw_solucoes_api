@@ -12,7 +12,7 @@ namespace MwSolucoes.Communication.Responses.ServiceRequest
         public EquipmentType EquipmentType { get; set; }
         public string BrandModel { get; set; } = string.Empty;
         public string ReportedProblem { get; set; } = string.Empty;
-        public string? TechnicalDiagnosis { get; set; }
+        public string? TechnicalDiagnosis { get; set; } = string.Empty;
         public decimal? LaborCost { get; set; }
         public decimal? PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
