@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #0056b3;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+        }
+
+        .text-button {
+            color: white;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #333;">Bem-vindo(a) à MW Soluções! 🎉</h2>
+        <p>Olá, <strong>{{CustomerName}}</strong>!</p>
+        <p>Sua conta foi criada com sucesso. Para garantir a segurança dos seus dados e liberar o seu acesso ao sistema, precisamos que você confirme seu endereço de e-mail clicando no botão abaixo:</p>
+
+        <div style="text-align: center;">
+            <a href="{{ConfirmationLink}}" class="btn">
+                <span class="text-button">
+                    Confirmar Meu E-mail
+                </span>
+            </a>
+        </div>
+
+        <p style="margin-top: 30px;">Se o botão não funcionar, copie e cole o link abaixo no seu navegador:</p>
+        <p style="word-break: break-all; color: #0056b3;">{{ConfirmationLink}}</p>
+
+        <div class="footer">
+            <p>Se você não criou essa conta, pode ignorar este e-mail.</p>
+            <p>&copy; 2026 MW Soluções. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

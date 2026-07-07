@@ -148,5 +148,21 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             var timeline = await _serviceRequestService.GetTimeServiceRequestTimeline(serviceRequestId, GetUserId());
             return Ok(timeline);
         }
+
+        [HttpPut("{id:guid}/approve-budget")]
+        [Authorize] 
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> ApproveBudget([FromRoute] Guid id)
+        {
+            Guid userId = GetUserId();
+
+            
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "IP Desconhecido";
+            string userAgent = Request.Headers.UserAgent.ToString();
+
+            await _serviceRequestService.ApproveBudgetAsync(id, userId, ipAddress, userAgent);
+
+            return NoContent();
+        }
     }
 }
