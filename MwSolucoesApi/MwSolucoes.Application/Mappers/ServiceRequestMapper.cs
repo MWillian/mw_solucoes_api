@@ -1,5 +1,6 @@
 ﻿using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses.ServiceRequest;
+using MwSolucoes.Domain.DTOs;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Enums;
 using DomainServiceRequestFilters = MwSolucoes.Domain.Repositories.Filters.ServiceRequestFilters;
@@ -117,6 +118,26 @@ namespace MwSolucoes.Application.Mappers
                 Description = h.Description ?? string.Empty,
                 CreatedAt = h.CreatedAt
             }));
+        }
+
+        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse)
+        {
+            return new ServiceRequestReportDto
+            {
+                Id = serviceRequestResponse.Id,
+                Protocol = serviceRequestResponse.Protocol,
+                UserId = serviceRequestResponse.UserId,
+                Status = serviceRequestResponse.Status,
+                CreatedAt = serviceRequestResponse.CreatedAt,
+                EquipmentType = serviceRequestResponse.EquipmentType,
+                BrandModel = serviceRequestResponse.BrandModel,
+                ReportedProblem = serviceRequestResponse.ReportedProblem,
+                TechnicalDiagnosis = serviceRequestResponse.TechnicalDiagnosis,
+                LaborCost = serviceRequestResponse.LaborCost,
+                PartsCost = serviceRequestResponse.PartsCost,
+                RequiresDownPayment = serviceRequestResponse.RequiresDownPayment,
+                ServiceIds = serviceRequestResponse.ServiceIds
+            };
         }
     }
 }

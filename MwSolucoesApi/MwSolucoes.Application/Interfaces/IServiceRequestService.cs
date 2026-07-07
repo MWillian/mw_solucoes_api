@@ -16,5 +16,6 @@ namespace MwSolucoes.Application.Interfaces
         Task<ResponseUpdateServiceRequest> UpdateServiceRequest(Guid serviceRequestId, RequestUpdateServiceRequest request, Guid technicianId);
         Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician);
         Task<List<ResponseServiceRequestHistory>> GetTimeServiceRequestTimeline(Guid serviceRequestId, Guid userId);
+        Task<byte[]> GenerateServiceRequestPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
     }
 }

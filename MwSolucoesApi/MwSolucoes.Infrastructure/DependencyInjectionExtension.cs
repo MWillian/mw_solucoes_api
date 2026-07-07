@@ -2,14 +2,17 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MwSolucoes.Domain.CepValidation;
+using MwSolucoes.Domain.PdfGenerator;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
 using MwSolucoes.Domain.Security.Tokens;
 using MwSolucoes.Infrastructure.CepValidation;
 using MwSolucoes.Infrastructure.Data;
+using MwSolucoes.Infrastructure.PdfGenerator;
 using MwSolucoes.Infrastructure.Repositories;
 using MwSolucoes.Infrastructure.Security.Cryptography;
 using MwSolucoes.Infrastructure.Security.Tokens;
+using System.Net.NetworkInformation;
 
 namespace MwSolucoes.Infrastructure
 {
@@ -22,6 +25,7 @@ namespace MwSolucoes.Infrastructure
             AddRepositories(services);
             AddPasswordEncrypter(services);
             AddToken(services, configuration);
+            AddPdfGenerator(services);
         }
 
         private static void AddDbConnection(IServiceCollection services, string connectionString)
@@ -57,6 +61,10 @@ namespace MwSolucoes.Infrastructure
             var issuer = configuration.GetValue<string>("Settings:Jwt:Issuer") ?? string.Empty;
             var audience = configuration.GetValue<string>("Settings:Jwt:Audience") ?? string.Empty;
             services.AddScoped<ITokenGenerator>(config => new TokenGenerator(expireTimeMinutes, signingKey!, issuer, audience));
+        }
+        private static void AddPdfGenerator(IServiceCollection services)
+        {
+            services.AddScoped<IOrderServiceReportGenerator, OrderServiceReportGenerator>();
         }
     }
 }

@@ -4,6 +4,7 @@ using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses.ServiceRequest;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Enums;
+using MwSolucoes.Domain.PdfGenerator;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Exception.ExceptionBase;
 
@@ -16,12 +17,14 @@ namespace MwSolucoes.Application.Services
         private readonly IServiceRequestRepository _serviceRequestRepository;
         private readonly IMaintenanceServiceRepository _maintenanceServiceRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IOrderServiceReportGenerator _pdfGenerator;
 
-        public ServiceRequestService(IServiceRequestRepository serviceRequestRepository, IMaintenanceServiceRepository maintenanceServiceRepository, IUserRepository userRepository)
+        public ServiceRequestService(IServiceRequestRepository serviceRequestRepository, IMaintenanceServiceRepository maintenanceServiceRepository, IUserRepository userRepository, IOrderServiceReportGenerator pdfGenerator)
         {
             _serviceRequestRepository = serviceRequestRepository;
             _maintenanceServiceRepository = maintenanceServiceRepository;
             _userRepository = userRepository;
+            _pdfGenerator = pdfGenerator;
         }
 
         // Main methods
@@ -140,6 +143,16 @@ namespace MwSolucoes.Application.Services
             var history = await _serviceRequestRepository.GetHistoryByServiceRequestId(serviceRequestId);
 
             return ServiceRequestMapper.ToResponseServiceRequestHistoryList(history);
+        }
+
+        public async Task<byte[]> GenerateServiceRequestPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician)
+        {
+            var serviceRequestResponse = await GetServiceRequestById(serviceRequestId, userId, isTechnician);
+
+            var serviceRequestDto = ServiceRequestMapper.ToServiceRequestDto(serviceRequestResponse);
+            var pdfBytes = _pdfGenerator.GenerateOrderServicePdf(serviceRequestDto);
+
+            return pdfBytes;
         }
 
         //Helper Methods
