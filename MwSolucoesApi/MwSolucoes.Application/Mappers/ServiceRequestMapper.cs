@@ -46,7 +46,8 @@ namespace MwSolucoes.Application.Mappers
                 LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
-                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
+                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList(),
+                AcceptedAt = serviceRequest.AcceptedAt
             };
         }
 
@@ -130,13 +131,15 @@ namespace MwSolucoes.Application.Mappers
                 BrandModel = serviceRequestResponse.BrandModel,
                 ReportedProblem = serviceRequestResponse.ReportedProblem,
                 TechnicalDiagnosis = serviceRequestResponse.TechnicalDiagnosis,
+                AcceptedAt = serviceRequestResponse.AcceptedAt,
                 LaborCost = serviceRequestResponse.LaborCost,
                 PartsCost = serviceRequestResponse.PartsCost,
                 CustomerCpf = user.CPF,
                 CustomerEmail = user.Email,
                 CustomerName = user.Name,
                 CustomerPhone = user.PhoneNumber,
-                Services = ToMaintenanceServiceItemDtoList(maintenanceServices)
+                Services = ToMaintenanceServiceItemDtoList(maintenanceServices),
+                Status = serviceRequestResponse.Status
             };
         }
         public static List<MaintenanceServiceItemDto> ToMaintenanceServiceItemDtoList(List<MaintenanceService> maintenanceServices)

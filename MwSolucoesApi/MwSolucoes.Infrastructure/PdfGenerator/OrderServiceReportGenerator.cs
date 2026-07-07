@@ -126,34 +126,43 @@ namespace MwSolucoes.Infrastructure.PdfGenerator
 
                     switch (os.Status)
                     {
-                        case (ServiceRequestStatus)0:
-                            statusText = "[ AGUARDANDO ACEITE DO CLIENTE ]";
+                        case ServiceRequestStatus.Created:
+                            statusText = "[ AGUARDANDO ANÁLISE TÉCNICA ]";
                             statusColor = Colors.Orange.Darken2;
-                            notaText = "Nota: O início dos serviços está condicionado à aprovação eletrônica desta proposta através da plataforma.";
+                            notaText = "Equipamento recebido. Aguardando a emissão do parecer técnico.";
                             break;
 
-                        case (ServiceRequestStatus)1:
-                            statusText = "[ ORÇAMENTO APROVADO - EM MANUTENÇÃO ]";
-                            statusColor = Colors.Blue.Darken2;
-                            notaText = $"Proposta aprovada eletronicamente pelo cliente. Equipamento em bancada para execução dos serviços.";
+                        case ServiceRequestStatus.InProgress:
+                            if (os.AcceptedAt == null)
+                            {
+                                statusText = "[ ORÇAMENTO AGUARDANDO ACEITE DO CLIENTE ]";
+                                statusColor = Colors.Orange.Darken2;
+                                notaText = "Nota: O início dos serviços está condicionado à aprovação desta proposta pelo cliente.";
+                            }
+                            else
+                            {
+                                statusText = "[ ORÇAMENTO APROVADO - EM MANUTENÇÃO ]";
+                                statusColor = Colors.Blue.Darken2;
+                                notaText = $"Proposta aprovada eletronicamente em {os.AcceptedAt:dd/MM/yyyy}. Equipamento em execução.";
+                            }
                             break;
 
-                        case (ServiceRequestStatus)2:
-                            statusText = "[ SERVIÇO CONCLUÍDO ]";
+                        case ServiceRequestStatus.Finished:
+                            statusText = "[ SERVIÇO CONCLUÍDO E QUITADO ]";
                             statusColor = Colors.Green.Darken2;
-                            notaText = "Manutenção finalizada com sucesso. Equipamento testado e pronto para retirada/entrega.";
-                            break;
-
-                        case (ServiceRequestStatus)3:
-                            statusText = "[ SOLICITAÇÃO CANCELADA ]";
-                            statusColor = Colors.Red.Darken2;
-                            notaText = "Esta ordem de serviço foi cancelada e o escopo técnico foi desconsiderado.";
+                            notaText = "Manutenção finalizada com sucesso e garantia ativa de 90 dias.";
                             break;
 
                         case (ServiceRequestStatus)4:
                             statusText = "[ SOLICITAÇÃO REJEITADA ]";
                             statusColor = Colors.Red.Darken2;
                             notaText = "Esta ordem de serviço foi rejeitada pelo técnico e o seu escopo foi desconsiderado.";
+                            break;
+
+                        case (ServiceRequestStatus)5:
+                            statusText = "[ SOLICITAÇÃO CANCELADA PELO CLIENTE ]";
+                            statusColor = Colors.Red.Darken2;
+                            notaText = "Esta ordem de serviço foi cancelada pelo cliente.";
                             break;
 
                         default:

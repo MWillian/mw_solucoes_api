@@ -162,7 +162,7 @@ namespace MwSolucoes.Application.Services
         {
             var serviceRequestResponse = await GetServiceRequestById(serviceRequestId, userId, isTechnician);
 
-            if ((int)serviceRequestResponse.Status != 2) 
+            if ((int)serviceRequestResponse.Status != 2)
             {
                 throw new UnprocessableEntityException("O recibo só pode ser gerado para Ordens de Serviço finalizadas.");
             }
@@ -178,6 +178,21 @@ namespace MwSolucoes.Application.Services
             var pdfBytes = _receiptReportGenerator.GenerateReceiptPdf(receiptDto);
 
             return pdfBytes;
+        }
+
+        public async Task ApproveBudgetAsync(Guid id, Guid userId, string ipAddress, string userAgent)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(id)
+                ?? throw new NotFoundException("Ordem de serviço não encontrada.");
+
+            if (serviceRequest.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("Operação inválida.");
+            }
+
+            serviceRequest.ApproveBudget(ipAddress, userAgent);
+
+            await _serviceRequestRepository.Update(serviceRequest);
         }
 
         //Helper Methods

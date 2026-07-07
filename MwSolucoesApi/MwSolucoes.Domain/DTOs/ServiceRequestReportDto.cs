@@ -17,6 +17,7 @@ namespace MwSolucoes.Domain.DTOs
         public decimal? LaborCost { get; set; }
         public decimal? PartsCost { get; set; }
         public ServiceRequestStatus Status { get; set; }
+        public DateTime? AcceptedAt { get; set; }
         public List<MaintenanceServiceItemDto> Services { get; set; } = [];
     }
     public record MaintenanceServiceItemDto

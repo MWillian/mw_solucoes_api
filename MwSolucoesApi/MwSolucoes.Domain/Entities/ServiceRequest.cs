@@ -105,7 +105,24 @@ namespace MwSolucoes.Domain.Entities
             var history = new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.InProgress, "Técnico assumiu a solicitação de serviço.");
             _histories.Add(history);
         }
+        public void ApproveBudget(string ipAddress, string userAgent)
+        {
+            if (Status != ServiceRequestStatus.InProgress)
+            {
+                throw new DomainException("O orçamento não pode ser aprovado neste estágio da solicitação.");
+            }
 
+            if (AcceptedAt != null)
+            {
+                throw new DomainException("Este orçamento já foi aprovado eletronicamente.");
+            }
+
+            AcceptedAt = DateTime.UtcNow;
+            AcceptedIpAddress = ipAddress;
+            AcceptedUserAgent = userAgent;
+
+            _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.InProgress, "Cliente aprovou o orçamento eletronicamente."));
+        }
         public void StartProgress()
         {
             if (Status != ServiceRequestStatus.Created)

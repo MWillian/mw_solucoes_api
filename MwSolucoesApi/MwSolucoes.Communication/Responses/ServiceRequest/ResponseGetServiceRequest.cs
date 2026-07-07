@@ -17,5 +17,6 @@ namespace MwSolucoes.Communication.Responses.ServiceRequest
         public decimal? PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
         public List<int> ServiceIds { get; set; } = [];
+        public DateTime? AcceptedAt { get; set; }
     }
 }
