@@ -1,44 +1,44 @@
-# MW Solucoes API
+# MW Soluções API
 
-API da plataforma MW Soluções, focada em gerenciamento de solicitações de serviço e catálogo de serviços de manutenção de microcomputadores.
+API da plataforma MW Soluções, focada no gerenciamento de solicitações de serviço e na manutenção de um catálogo dinâmico de serviços para microcomputadores. Construída sob os princípios do Domain-Driven Design.
 
-## Visão do produto
-Uma plataforma simples e confiável para conectar clientes a serviços de manutenção, com rastreio de status e operação clara para técnicos.
+## Visão do Produto
 
-## Para quem é
-- Cliente: abre solicitações, acompanha o andamento e consulta serviços disponíveis.
-- Técnico: controla o ciclo de vida das solicitações e mantém o catálogo de serviços.
+Uma plataforma robusta e confiável para conectar clientes a serviços de manutenção, oferecendo rastreabilidade total de status para os clientes e uma operação centralizada e clara para os técnicos.
 
-## Jornadas principais
-- Cliente cria solicitação com serviços, acompanha status e histórico.
-- Técnico aceita, atualiza, finaliza ou cancela solicitações conforme o fluxo.
-- Catálogo de serviços permite ativar/desativar serviços conforme disponibilidade.
+## Perfis de Acesso
 
-## O que temos atualmente
-- API organizada em camadas (Domain, Application, Infrastructure, Communication, API).
-- Entidades e regras de negócio para solicitações de serviço, usuários e serviços de manutenção.
-- Casos de uso para criar, atualizar, listar, aceitar, rejeitar, finalizar, cancelar e remover solicitações.
-- Endpoints para catálogo de serviços de manutenção (listar, obter por ID, criar, atualizar, ativar/desativar e remover).
-- Autenticação/autorização por roles (Cliente/Técnico) aplicada em endpoints sensíveis.
-- Base para persistência e migrações no projeto de infraestrutura.
+* **Cliente:** Abre solicitações de serviço, acompanha o andamento via linha do tempo e consulta os serviços disponíveis no catálogo.
+* **Técnico:** Controla o ciclo de vida das solicitações (aceite, atualização, finalização) e realiza a gestão integral do catálogo de serviços.
 
-## O que já foi construído
-- Estrutura da solução com projetos separados por responsabilidade.
-- Mapeamentos e contratos de requisições/respostas para comunicação entre API e front-end.
-- Regras de status para solicitações (Criada, Em Progresso, Finalizada, Cancelada, Rejeitada).
+## Arquitetura e Segurança
 
-## Ferramentas utilizadas
-- .NET / ASP.NET Core
-- Entity Framework Core
-- C#
-- PostgreSQL
+A aplicação foi desenvolvida em camadas (Domain, Application, Infrastructure, Communication, API, Exception).
 
-## Etapa atual
-Primeira etapa do back-end concluída. O próximo passo é iniciar o desenvolvimento do front-end, com implementação em TypeScript e Angular.
+* **Autenticação e Autorização:** Autenticação robusta via JWT configurado para ciclo de vida curto, acompanhado de implementação completa de *Refresh Tokens* com rotação e revogação no banco de dados.
+* **Segurança em Nível de Negócio:** Proteções contra BOLA (Broken Object Level Authorization) e BFLA (Broken Function Level Authorization) implementadas diretamente nas regras da camada de Domínio, garantindo que usuários só acessem e manipulem recursos que lhes pertencem ou competem ao seu cargo.
+* **Defesa de Borda:** Middleware global de *Rate Limiting* com políticas segmentadas (ex: limitação estrita nas rotas de autenticação contra *brute-force*), além da configuração de cabeçalhos de segurança HTTP rigorosos (CSP, HSTS, X-Frame-Options, X-Content-Type-Options).
+* **Background Jobs:** Implementação de um *Worker Service* rodando em segundo plano para a manutenção preventiva do banco de dados, realizando a limpeza periódica de *Refresh Tokens* expirados.
+* **Observabilidade:** Configuração de logs estruturados utilizando Serilog, mantendo o registro monitorado de exceções globais e operações críticas no sistema.
 
-## O que ainda virá
-- Iniciar o front-end com base em Angular.
-- Refinar documentação de endpoints conforme o front-end evoluir.
-- Implementar a extensão do back-end, com lógica de pagamento e aperfeiçoamento do fluxo das solicitações de serviço.
-- Containerização da aplicação em uma VPS própria.
-- Aquisição de domínio próprio para disponibilidade da solução.
+## Funcionalidades em Destaque
+
+* **Gestão de Solicitações de Serviço:** Ciclo de vida completo com validações de transição de status (Criada, Em Progresso, Finalizada, Cancelada, Rejeitada).
+* **Histórico e Rastreabilidade:** Tabela de histórico imutável vinculada ao Domínio, gerando uma linha do tempo automática e segura a cada mudança de estado das solicitações.
+* **Catálogo de Serviços Inteligente:** Endpoints de gerenciamento (CRUD) com visibilidade condicional baseada em perfil.
+
+## Stack Tecnológica
+
+* C# / .NET 10 / ASP.NET
+* Entity Framework Core
+* PostgreSQL
+* Serilog (Structured Logging)
+
+## Próximos Passos
+
+A primeira fase do back-end, contemplando as regras de negócio core e o pilar de segurança, está concluída. Os próximos passos do ciclo de desenvolvimento incluem:
+
+* Construção do front-end utilizando o framework Angular.
+* Implementação de um módulo de integração com API de pagamentos.
+* Containerização da aplicação utilizando Docker.
+* Configuração e deploy em VPS com aquisição de domínio próprio.
