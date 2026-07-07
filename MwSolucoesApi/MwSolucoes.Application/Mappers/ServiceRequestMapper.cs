@@ -147,5 +147,29 @@ namespace MwSolucoes.Application.Mappers
                 Price = service.Price
             }).ToList();
         }
+        public static ReceiptReportDto ToReceiptReportDto(
+            ResponseGetServiceRequest serviceRequestResponse,
+            List<MaintenanceService> maintenanceServices,
+            User user,
+            PaymentMethod paymentMethod)
+        {
+            decimal servicesTotal = maintenanceServices.Sum(s => s.Price);
+            decimal? totalAmount = servicesTotal + serviceRequestResponse.LaborCost + serviceRequestResponse.PartsCost;
+
+            return new ReceiptReportDto
+            {
+                Protocol = serviceRequestResponse.Protocol,
+                FinishedAt = DateTime.Now,
+                Equipment = serviceRequestResponse.EquipmentType,
+                BrandModel = serviceRequestResponse.BrandModel,
+                LaborCost = serviceRequestResponse.LaborCost,
+                PartsCost = serviceRequestResponse.PartsCost,
+                CustomerCpf = user.CPF,
+                CustomerName = user.Name,
+                Services = ToMaintenanceServiceItemDtoList(maintenanceServices), 
+                TotalAmount = totalAmount,
+                PaymentMethod = paymentMethod
+            };
+        }
     }
 }

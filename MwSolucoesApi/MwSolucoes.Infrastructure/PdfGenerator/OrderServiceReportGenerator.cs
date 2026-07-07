@@ -171,6 +171,22 @@ namespace MwSolucoes.Infrastructure.PdfGenerator
 
                     c.Item().PaddingTop(2).Text(notaText).FontSize(9).Italic().FontColor(Colors.Grey.Darken2);
                 });
+
+                column.Item().PaddingTop(40).Row(row =>
+                {
+                    row.RelativeItem().AlignCenter().Column(c =>
+                    {
+                        c.Item().AlignCenter().Text("_________________________________________");
+                        c.Item().AlignCenter().PaddingTop(2).Text("Assinatura do Cliente").SemiBold();
+                        c.Item().AlignCenter().Text(os.CustomerName).FontSize(9);
+                    });
+
+                    row.RelativeItem().AlignCenter().Column(c =>
+                    {
+                        c.Item().AlignCenter().Text("_________________________________________");
+                        c.Item().AlignCenter().PaddingTop(2).Text("MW Soluções (Técnico Responsável)").SemiBold();
+                    });
+                });
             });
         }
 

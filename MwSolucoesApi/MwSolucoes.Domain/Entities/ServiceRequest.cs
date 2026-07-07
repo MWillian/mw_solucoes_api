@@ -22,6 +22,9 @@ namespace MwSolucoes.Domain.Entities
         public bool RequiresDownPayment { get; private set; }
         public Guid? TechnicianId { get; private set; }
         public User? Technician { get; private set; }
+        public DateTime? AcceptedAt { get; set; }
+        public string? AcceptedIpAddress { get; set; }
+        public string? AcceptedUserAgent { get; set; }
         public User User { get; private set; } = null!;
         private readonly List<ServiceRequestHistory> _histories = [];
         public IReadOnlyCollection<ServiceRequestHistory> Histories => _histories.AsReadOnly();

@@ -2,6 +2,7 @@
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.ServiceRequest;
 using MwSolucoes.Domain.Entities;
+using System.Net;
 
 namespace MwSolucoes.Application.Interfaces
 {
@@ -17,5 +18,6 @@ namespace MwSolucoes.Application.Interfaces
         Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician);
         Task<List<ResponseServiceRequestHistory>> GetTimeServiceRequestTimeline(Guid serviceRequestId, Guid userId);
         Task<byte[]> GenerateServiceRequestPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
+        Task<byte[]> GenerateReceiptPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
     }
 }

@@ -18,13 +18,15 @@ namespace MwSolucoes.Application.Services
         private readonly IMaintenanceServiceRepository _maintenanceServiceRepository;
         private readonly IUserRepository _userRepository;
         private readonly IOrderServiceReportGenerator _pdfGenerator;
+        private readonly IReceiptReportGenerator _receiptReportGenerator;
 
-        public ServiceRequestService(IServiceRequestRepository serviceRequestRepository, IMaintenanceServiceRepository maintenanceServiceRepository, IUserRepository userRepository, IOrderServiceReportGenerator pdfGenerator)
+        public ServiceRequestService(IServiceRequestRepository serviceRequestRepository, IMaintenanceServiceRepository maintenanceServiceRepository, IUserRepository userRepository, IOrderServiceReportGenerator pdfGenerator, IReceiptReportGenerator receiptReportGenerator)
         {
             _serviceRequestRepository = serviceRequestRepository;
             _maintenanceServiceRepository = maintenanceServiceRepository;
             _userRepository = userRepository;
             _pdfGenerator = pdfGenerator;
+            _receiptReportGenerator = receiptReportGenerator;
         }
 
         // Main methods
@@ -153,6 +155,27 @@ namespace MwSolucoes.Application.Services
             var customer = await _userRepository.GetById(serviceRequestResponse.UserId) ?? throw new NotFoundException("Usuário não encontrado.");
             var serviceRequestDto = ServiceRequestMapper.ToServiceRequestDto(serviceRequestResponse, maintenanceServices, customer);
             var pdfBytes = _pdfGenerator.GenerateOrderServicePdf(serviceRequestDto);
+
+            return pdfBytes;
+        }
+        public async Task<byte[]> GenerateReceiptPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician)
+        {
+            var serviceRequestResponse = await GetServiceRequestById(serviceRequestId, userId, isTechnician);
+
+            if ((int)serviceRequestResponse.Status != 2) 
+            {
+                throw new UnprocessableEntityException("O recibo só pode ser gerado para Ordens de Serviço finalizadas.");
+            }
+
+            var maintenanceServices = await _maintenanceServiceRepository.GetByIds(serviceRequestResponse.ServiceIds);
+            var customer = await _userRepository.GetById(serviceRequestResponse.UserId)
+                ?? throw new NotFoundException("Usuário não encontrado.");
+
+            PaymentMethod paymentMethod = PaymentMethod.Pix; //temporário
+
+            var receiptDto = ServiceRequestMapper.ToReceiptReportDto(serviceRequestResponse, maintenanceServices, customer, paymentMethod);
+
+            var pdfBytes = _receiptReportGenerator.GenerateReceiptPdf(receiptDto);
 
             return pdfBytes;
         }

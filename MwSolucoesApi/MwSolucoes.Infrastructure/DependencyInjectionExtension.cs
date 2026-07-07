@@ -65,6 +65,7 @@ namespace MwSolucoes.Infrastructure
         private static void AddPdfGenerator(IServiceCollection services)
         {
             services.AddScoped<IOrderServiceReportGenerator, OrderServiceReportGenerator>();
+            services.AddScoped<IReceiptReportGenerator, ReceiptReportGenerator>();
         }
     }
 }
