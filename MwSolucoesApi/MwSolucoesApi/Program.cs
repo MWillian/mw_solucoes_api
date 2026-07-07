@@ -97,13 +97,23 @@ try
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                    logger.LogWarning("Falha na validação do JWT: {Message}", context.Exception.Message);
+                    return Task.CompletedTask;
+                }
+            };
         });
 
     builder.Services.AddAuthorizationBuilder()
         .AddPolicy("AdminAccess", policy =>
         policy.RequireClaim("access_level", AccessLevels.Admin.ToString()))
         .AddPolicy("Technician", policy =>
-        policy.RequireClaim("role", UserRoles.Técnico.ToString()));
+        policy.RequireRole("role", UserRoles.Técnico.ToString()));
 
     builder.Services.AddHostedService<TokenCleanupWorker>();
 

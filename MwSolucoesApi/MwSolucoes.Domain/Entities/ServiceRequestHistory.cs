@@ -9,19 +9,19 @@ namespace MwSolucoes.Domain.Entities
         public int Id { get; private set; }
         public Guid ServiceRequestId { get; private set; }
         public ServiceRequestHistoryStatus Status { get; private set; }
-        public string? Description { get; private set; }
+        public string Description { get; private set; } = string.Empty;
         public DateTime CreatedAt { get; private set; }
 
         public ServiceRequest ServiceRequest { get; private set; } = null!;
 
-        public ServiceRequestHistory(Guid serviceRequestId, ServiceRequestHistoryStatus status, string? description)
+        public ServiceRequestHistory(Guid serviceRequestId, ServiceRequestHistoryStatus status, string description)
         {
             ValidateServiceRequestId(serviceRequestId);
             ValidateStatus(status);
 
             ServiceRequestId = serviceRequestId;
             Status = status;
-            Description = NormalizeDescription(description);
+            Description = description;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -37,9 +37,5 @@ namespace MwSolucoes.Domain.Entities
                 throw new DomainException("Status do histórico da solicitação inválido.");
         }
 
-        private static string? NormalizeDescription(string? description)
-        {
-            return description?.Trim();
-        }
     }
 }

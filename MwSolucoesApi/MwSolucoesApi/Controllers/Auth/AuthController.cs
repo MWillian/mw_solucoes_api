@@ -39,7 +39,8 @@ namespace MwSolucoes.Api.Controllers.Auth
             return Ok(new
             {
                 response.Name,
-                response.Token
+                response.Token,
+                response.RefreshToken
             });
 
         }

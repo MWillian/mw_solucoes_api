@@ -18,7 +18,10 @@ namespace MwSolucoes.Application.Services
         }
         public async Task<ResponseCreateMaintenanceService> CreateMaintenanceService(RequestCreateMaintenanceService request)
         {
-            await ValidateRequest(request);
+            var normalizedName = request.Name.Trim();
+            var existingService = await _maintenanceServiceRepository.GetByName(normalizedName);
+            if (existingService is not null)
+                throw new RequestConflictException("Já existe um serviço de manutenção com este nome.");
 
             var maintenanceService = MaintenanceServiceMapper.ToMaintenanceService(request);
             await _maintenanceServiceRepository.Add(maintenanceService);
@@ -58,7 +61,7 @@ namespace MwSolucoes.Application.Services
             var repositoryFilters = MaintenanceServiceMapper.ToDomainFilters(filters);
             if (!isTechnician)
             {
-                repositoryFilters.IsActive = true; 
+                repositoryFilters.IsActive = true;
             }
             var services = await _maintenanceServiceRepository.GetAll(repositoryFilters);
             return MaintenanceServiceMapper.ToResponseGetMaintenanceServices(services);
@@ -75,7 +78,11 @@ namespace MwSolucoes.Application.Services
         {
             var service = await ValidadeIdAndService(id);
 
-            await ValidateRequest(request);
+            var existingService = await _maintenanceServiceRepository.GetByName(request.Name);
+            if (existingService is not null && existingService.Id != id)
+            {
+                throw new RequestConflictException("Já existe um serviço de manutenção com este nome.");
+            }
 
             service.UpdateFields(request.Name, request.Description, request.Price, request.Category);
 
@@ -85,14 +92,6 @@ namespace MwSolucoes.Application.Services
         }
 
         // Helper methods
-        private async Task ValidateRequest(IUniqueMaintenanceServiceData request)
-        {
-            var normalizedName = request.Name.Trim();
-            var existingService = await _maintenanceServiceRepository.GetByName(normalizedName);
-            if (existingService is not null)
-                throw new RequestConflictException("Já existe um serviço de manutenção com este nome.");
-        }
-
         private async Task<Domain.Entities.MaintenanceService> ValidadeIdAndService(int id)
         {
             if (id <= 0) throw new ErrorOnValidationException("O id do serviço de manutenção é inválido.");
