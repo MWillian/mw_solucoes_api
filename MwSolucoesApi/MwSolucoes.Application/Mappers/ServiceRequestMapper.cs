@@ -1,5 +1,6 @@
 ﻿using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses.ServiceRequest;
+using MwSolucoes.Domain.DTOs;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Enums;
 using DomainServiceRequestFilters = MwSolucoes.Domain.Repositories.Filters.ServiceRequestFilters;
@@ -45,7 +46,8 @@ namespace MwSolucoes.Application.Mappers
                 LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
-                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
+                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList(),
+                AcceptedAt = serviceRequest.AcceptedAt
             };
         }
 
@@ -117,6 +119,60 @@ namespace MwSolucoes.Application.Mappers
                 Description = h.Description ?? string.Empty,
                 CreatedAt = h.CreatedAt
             }));
+        }
+
+        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse, List<MaintenanceService> maintenanceServices, User? user)
+        {
+            return new ServiceRequestReportDto
+            {
+                Protocol = serviceRequestResponse.Protocol,
+                CreatedAt = serviceRequestResponse.CreatedAt,
+                Equipment = serviceRequestResponse.EquipmentType,
+                BrandModel = serviceRequestResponse.BrandModel,
+                ReportedProblem = serviceRequestResponse.ReportedProblem,
+                TechnicalDiagnosis = serviceRequestResponse.TechnicalDiagnosis,
+                AcceptedAt = serviceRequestResponse.AcceptedAt,
+                LaborCost = serviceRequestResponse.LaborCost,
+                PartsCost = serviceRequestResponse.PartsCost,
+                CustomerCpf = user.CPF,
+                CustomerEmail = user.Email,
+                CustomerName = user.Name,
+                CustomerPhone = user.PhoneNumber,
+                Services = ToMaintenanceServiceItemDtoList(maintenanceServices),
+                Status = serviceRequestResponse.Status
+            };
+        }
+        public static List<MaintenanceServiceItemDto> ToMaintenanceServiceItemDtoList(List<MaintenanceService> maintenanceServices)
+        {
+            return maintenanceServices.Select(service => new MaintenanceServiceItemDto
+            {
+                Name = service.Name,
+                Price = service.Price
+            }).ToList();
+        }
+        public static ReceiptReportDto ToReceiptReportDto(
+            ResponseGetServiceRequest serviceRequestResponse,
+            List<MaintenanceService> maintenanceServices,
+            User user,
+            PaymentMethod paymentMethod)
+        {
+            decimal servicesTotal = maintenanceServices.Sum(s => s.Price);
+            decimal? totalAmount = servicesTotal + serviceRequestResponse.LaborCost + serviceRequestResponse.PartsCost;
+
+            return new ReceiptReportDto
+            {
+                Protocol = serviceRequestResponse.Protocol,
+                FinishedAt = DateTime.Now,
+                Equipment = serviceRequestResponse.EquipmentType,
+                BrandModel = serviceRequestResponse.BrandModel,
+                LaborCost = serviceRequestResponse.LaborCost,
+                PartsCost = serviceRequestResponse.PartsCost,
+                CustomerCpf = user.CPF,
+                CustomerName = user.Name,
+                Services = ToMaintenanceServiceItemDtoList(maintenanceServices), 
+                TotalAmount = totalAmount,
+                PaymentMethod = paymentMethod
+            };
         }
     }
 }

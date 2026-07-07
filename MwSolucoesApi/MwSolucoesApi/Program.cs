@@ -5,7 +5,7 @@ using MwSolucoes.Api.Filters;
 using MwSolucoes.Application;
 using MwSolucoes.Domain.Enums;
 using MwSolucoes.Infrastructure;
-
+using QuestPDF.Infrastructure;
 using Serilog;
 using System.Net;
 using System.Text;
@@ -71,6 +71,8 @@ builder.Services.AddRateLimiter(options =>
         });
     });
 });
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 try
 {

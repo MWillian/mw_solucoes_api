@@ -2,6 +2,8 @@
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.ServiceRequest;
 using MwSolucoes.Domain.Entities;
+using MwSolucoes.Domain.ValueObjects;
+using System.Net;
 
 namespace MwSolucoes.Application.Interfaces
 {
@@ -16,5 +18,8 @@ namespace MwSolucoes.Application.Interfaces
         Task<ResponseUpdateServiceRequest> UpdateServiceRequest(Guid serviceRequestId, RequestUpdateServiceRequest request, Guid technicianId);
         Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician);
         Task<List<ResponseServiceRequestHistory>> GetTimeServiceRequestTimeline(Guid serviceRequestId, Guid userId);
+        Task<byte[]> GenerateServiceRequestPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
+        Task<byte[]> GenerateReceiptPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
+        Task ApproveBudgetAsync(Guid id, Guid userId, string ipAddress, string userAgent);
     }
 }
