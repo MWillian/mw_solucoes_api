@@ -19,7 +19,7 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             _serviceRequestService = serviceRequestService;
         }
 
-        [HttpPost()]
+        [HttpPost]
         [Authorize]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status403Forbidden)]

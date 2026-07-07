@@ -114,7 +114,7 @@ namespace MwSolucoes.Application.Mappers
             return new List<ResponseServiceRequestHistory>(history.Select(h => new ResponseServiceRequestHistory
             {
                 Status = h.Status,
-                Description = h.Description,
+                Description = h.Description ?? string.Empty,
                 CreatedAt = h.CreatedAt
             }));
         }
