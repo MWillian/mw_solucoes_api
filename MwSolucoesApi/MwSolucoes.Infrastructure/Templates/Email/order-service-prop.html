@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .os-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0056b3;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .os-title {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            margin: 0 0 5px 0;
+        }
+
+        .os-value {
+            font-size: 20px;
+            color: #333;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #0056b3;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
+            border-top: 1px solid #eeeeee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 style="color: #0056b3; margin: 0;">Nova Ordem de Serviço Gerada</h2>
+        </div>
+
+        <p>Olá, <strong>{{CustomerName}}</strong>,</p>
+        <p>Informamos que a sua Ordem de Serviço foi registrada com sucesso em nosso sistema.</p>
+
+        <div class="os-box">
+            <p class="os-title">Número do Protocolo (OS)</p>
+            <p class="os-value" style="color: #0056b3; margin-bottom: 15px;">#{{Protocol}}</p>
+
+            <p class="os-title">Valor Total Estimado</p>
+            <p class="os-value">R$ {{TotalValue}}</p>
+        </div>
+        <p>A ordem de serviço aguarda o aceite pelo cliente.</p>
+
+        <p>Se tiver alguma dúvida, basta entrar em contato com o nosso suporte informando o número do protocolo acima.</p>
+
+        <div class="footer">
+            <p>Este é um e-mail automático enviado pelo sistema MW Soluções.</p>
+            <p>&copy; 2026 MW Soluções. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

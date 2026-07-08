@@ -11,6 +11,7 @@ namespace MwSolucoes.Infrastructure.Data
         public DbSet<ServiceRequestItem> ServiceRequestItems => Set<ServiceRequestItem>();
         public DbSet<ServiceRequestHistory> ServiceRequestHistories => Set<ServiceRequestHistory>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<UserToken> UserTokens => Set<UserToken>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -151,6 +152,20 @@ namespace MwSolucoes.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<UserToken>(entity =>
+            {
+                entity.ToTable("UserTokens");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Token).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ExpiresAt).IsRequired();
+                entity.Property(e => e.UsedAt).IsRequired(false);
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Tokens)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

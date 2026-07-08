@@ -1,9 +1,9 @@
 ﻿using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.Mappers;
 using MwSolucoes.Communication.Requests.User;
-using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.User;
 using MwSolucoes.Domain.CepValidation;
+using MwSolucoes.Domain.Communication;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
@@ -23,14 +23,16 @@ namespace MwSolucoes.Application.Services
         private readonly IPasswordEncrypter _passwordEncrypter;
         private readonly ICepValidator _cepValidator;
         private readonly ITokenGenerator _tokenGenerator;
+        private readonly IEmailService _emailService;
 
-        public UserService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ICepValidator cepValidator, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository)
+        public UserService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ICepValidator cepValidator, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository, IEmailService emailService)
         {
             _userRepository = userRepository;
             _passwordEncrypter = passwordEncrypter;
             _cepValidator = cepValidator;
             _tokenGenerator = tokenGenerator;
             _refreshTokenRepository = refreshTokenRepository;
+            _emailService = emailService;
         }
 
         //Main methods
@@ -44,6 +46,8 @@ namespace MwSolucoes.Application.Services
 
             await _userRepository.Add(user);
 
+            string placeholderConfirmationLink = "https://example.com/confirm?token=some-token";
+            await _emailService.SendWelcomeConfirmationAsync(user.Email, user.Name, placeholderConfirmationLink);
             var accessToken = _tokenGenerator.GenerateToken(user);
             var refreshTokenString = _tokenGenerator.GenerateRefreshToken();
             var refreshTokenEntity = new RefreshToken(refreshTokenString, DateTime.UtcNow.AddDays(7), user.Id);

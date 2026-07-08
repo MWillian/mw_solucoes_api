@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using MwSolucoes.Application.Interfaces;
+using MwSolucoes.Application.Services;
 using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses;
@@ -17,6 +18,15 @@ namespace MwSolucoes.Api.Controllers.Auth
         public AuthController(IAuthService authService)
         {
             _authService = authService;
+        }
+
+        [EnableRateLimiting("auth")]
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] RequestResetPasswordDto request)
+        {
+            await _authService.ResetPasswordAsync(request);
+            return Ok(new { Message = "Sua senha foi redefinida com sucesso! Você já pode fazer login." });
         }
 
         [EnableRateLimiting("auth")]
@@ -51,7 +61,6 @@ namespace MwSolucoes.Api.Controllers.Auth
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status422UnprocessableEntity)]
-
         public async Task<IActionResult> Logout()
         {
             var token = GetCookieToken();
@@ -90,7 +99,7 @@ namespace MwSolucoes.Api.Controllers.Auth
         }
 
         [EnableRateLimiting("auth")]
-        [HttpPut("me")]
+        [HttpPut("update-password/me")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
@@ -98,7 +107,7 @@ namespace MwSolucoes.Api.Controllers.Auth
         public async Task<IActionResult> UpdatePassword([FromBody] RequestUpdatePassword request)
         {
             var userId = GetUserId();
-            await _authService.UpdatePasswordAsync(userId, request);
+            await _authService.UpdatePasswordMeAsync(userId, request);
 
             return NoContent();
         }
@@ -109,6 +118,15 @@ namespace MwSolucoes.Api.Controllers.Auth
                 return cookieToken;
             }
             return null;
+        }
+
+        [EnableRateLimiting("auth")]
+        [HttpPut("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] RequestForgotPassword request)
+        {
+            await _authService.ForgotPasswordAsync(request.Email);
+            return Ok(new { Message = "Se o e-mail estiver cadastrado, você receberá um link de redefinição em breve." });
         }
     }
 }

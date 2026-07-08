@@ -14,5 +14,6 @@ namespace MwSolucoes.Domain.Repositories
         Task<bool> ExistUserWithPhoneNumber(string phoneNumber, Guid? currentUserId = null);
         Task<bool> ExistUserByCpf(string cpf, Guid? currentUserId = null);
         Task<bool> IsActive(Guid id);
+        Task<User?> GetByResetTokenAsync(string token);
     }
 }
