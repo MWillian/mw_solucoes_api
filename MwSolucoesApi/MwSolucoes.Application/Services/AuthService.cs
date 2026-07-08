@@ -4,6 +4,7 @@ using MwSolucoes.Application.Mappers;
 using MwSolucoes.Communication.Requests.Auth;
 using MwSolucoes.Communication.Requests.Login;
 using MwSolucoes.Communication.Responses.Login;
+using MwSolucoes.Domain.Communication;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Repositories;
 using MwSolucoes.Domain.Security.Cryptography;
@@ -18,16 +19,32 @@ namespace MwSolucoes.Application.Services
         private readonly IPasswordEncrypter _passwordEncrypter;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IEmailService _emailService;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository, ILogger<AuthService> logger)
+        public AuthService(IUserRepository userRepository, IPasswordEncrypter passwordEncrypter, ITokenGenerator tokenGenerator, IRefreshTokenRepository refreshTokenRepository, ILogger<AuthService> logger, IEmailService emailService)
         {
             _userRepository = userRepository;
             _passwordEncrypter = passwordEncrypter;
             _tokenGenerator = tokenGenerator;
             _refreshTokenRepository = refreshTokenRepository;
             _logger = logger;
+            _emailService = emailService;
         }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _userRepository.GetByEmail(email);
+            if (user == null)
+            {
+                return;
+            }
+            var tokenEntity = user.GeneratePasswordResetToken(15);
+            await _userRepository.Update(user);
+            string resetLink = $"http://localhost:4200/resetar-senha?token={tokenEntity.Token}";
+            await _emailService.SendPasswordResetAsync(user.Email, user.Name, resetLink);
+        }
+
         public async Task<ResponseLogin> LoginAsync(RequestLogin request)
         {
             var user = await _userRepository.GetByEmail(request.Email);
@@ -69,6 +86,30 @@ namespace MwSolucoes.Application.Services
             await _refreshTokenRepository.Update(refreshToken);
         }
 
+        public async Task ResetPasswordAsync(RequestResetPasswordDto request)
+        {
+            var user = await _userRepository.GetByResetTokenAsync(request.Token);
+
+            if (user == null)
+            {
+                throw new NotFoundException("Token de recuperação inválido ou inexistente.");
+            }
+
+            var tokenEntity = user.Tokens.FirstOrDefault(t => t.Token == request.Token);
+
+            if (tokenEntity == null || !tokenEntity.IsValid())
+            {
+                throw new UnprocessableEntityException("O link de recuperação expirou ou já foi utilizado.");
+            }
+
+            string newHashedPassword = _passwordEncrypter.Encrypt(request.NewPassword);
+
+            user.UpdatePassword(newHashedPassword);
+            tokenEntity.MarkAsUsed();
+
+            await _userRepository.Update(user);
+        }
+
         public async Task<ResponseLogin> TokenRefresh(string cookieToken)
         {
             var refreshToken = await _refreshTokenRepository.GetByTokenWithUser(cookieToken)
@@ -102,7 +143,7 @@ namespace MwSolucoes.Application.Services
             return UserMapper.ToResponseLogin(user, newAccessToken, newRefreshTokenString);
         }
 
-        public async Task UpdatePasswordAsync(Guid userId, RequestUpdatePassword request)
+        public async Task UpdatePasswordMeAsync(Guid userId, RequestUpdatePassword request)
         {
             var user = await _userRepository.GetById(userId) ?? throw new NotFoundException("Usuário não encontrado.");
             var currentPasswordHash = _passwordEncrypter.Verify(request.CurrentPassword, user.PasswordHash);

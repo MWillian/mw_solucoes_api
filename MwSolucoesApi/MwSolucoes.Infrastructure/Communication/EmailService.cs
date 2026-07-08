@@ -20,6 +20,20 @@ namespace MwSolucoes.Infrastructure.Communication
             _resend = ResendClient.Create(apiKey);
             _templateRenderer = templateRenderer;
         }
+
+        public async Task SendPasswordResetAsync(string toEmail, string customerName, string confirmationLink)
+        {
+            var replacements = new Dictionary<string, string>
+            {
+                { "CustomerName", customerName },
+                { "ResetLink", confirmationLink },
+            };
+
+            string htmlBody = await _templateRenderer.RenderAsync("reset-password", replacements);
+
+            await SendRawEmailAsync(toEmail, "Recuperação de senha - MW Soluções", htmlBody);
+        }
+
         public async Task SendWelcomeConfirmationAsync(string toEmail, string customerName, string confirmationLink)
         {
             var replacements = new Dictionary<string, string>

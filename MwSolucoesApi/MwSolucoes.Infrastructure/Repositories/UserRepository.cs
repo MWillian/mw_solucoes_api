@@ -96,5 +96,12 @@ namespace MwSolucoes.Infrastructure.Repositories
             var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
             return user != null && user.IsActive;
         }
+
+        public async Task<User?> GetByResetTokenAsync(string token)
+        {
+            return await _context.Users
+                .Include(u => u.Tokens) 
+                .FirstOrDefaultAsync(u => u.Tokens.Any(t => t.Token == token));
+        }
     }
 }

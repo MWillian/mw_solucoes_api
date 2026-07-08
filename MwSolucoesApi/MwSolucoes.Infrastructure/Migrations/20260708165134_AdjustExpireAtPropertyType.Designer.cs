@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MwSolucoes.Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MwSolucoes.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708165134_AdjustExpireAtPropertyType")]
+    partial class AdjustExpireAtPropertyType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,15 +282,20 @@ namespace MwSolucoes.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<DateTime?>("UsedAt")
+                    b.Property<DateTime>("UsedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("UserTokens", (string)null);
                 });
@@ -409,10 +417,14 @@ namespace MwSolucoes.Infrastructure.Migrations
             modelBuilder.Entity("MwSolucoes.Domain.Entities.UserToken", b =>
                 {
                     b.HasOne("MwSolucoes.Domain.Entities.User", "User")
-                        .WithMany("Tokens")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("MwSolucoes.Domain.Entities.User", null)
+                        .WithMany("Tokens")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });

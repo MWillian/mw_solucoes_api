@@ -35,6 +35,7 @@ namespace MwSolucoes.Domain.Entities
         public AccessLevels AccessLevel { get; private set; }
 
         public bool IsActive { get; private set; } = true;
+        public ICollection<UserToken> Tokens { get; private set; } = [];
 
         public Address Address { get; private set; }
         public void Validate(string name, string email, string password, string phoneNumber, string cpf, int role, int accessLevel, Address address)
@@ -47,6 +48,12 @@ namespace MwSolucoes.Domain.Entities
             ValidateRole(role);
             ValidateAddress(address);
             ValidateAccessLevel(accessLevel);
+        }
+        public UserToken GeneratePasswordResetToken(int expirationMinutes)
+        {
+            var token = new UserToken(Id, expirationMinutes: 15);
+            Tokens.Add(token);
+            return token;
         }
 
         // Validate Methods
