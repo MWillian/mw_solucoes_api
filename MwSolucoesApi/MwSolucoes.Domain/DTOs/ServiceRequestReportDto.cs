@@ -13,7 +13,7 @@ namespace MwSolucoes.Domain.DTOs
         public EquipmentType Equipment { get; set; }
         public string BrandModel { get; set; } = string.Empty;
         public string ReportedProblem { get; set; } = string.Empty;
-        public string TechnicalDiagnosis { get; set; } = string.Empty;
+        public string? TechnicalDiagnosis { get; set; } = string.Empty;
         public decimal? PartsCost { get; set; }
         public ServiceRequestStatus Status { get; set; }
         public DateTime? AcceptedAt { get; set; }

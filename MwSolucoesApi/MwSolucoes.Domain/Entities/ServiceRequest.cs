@@ -16,9 +16,9 @@ namespace MwSolucoes.Domain.Entities
         public EquipmentType EquipmentType { get; private set; }
         public string BrandModel { get; private set; } = string.Empty;
         public string ReportedProblem { get; private set; } = string.Empty;
-        public string? TechnicalDiagnosis { get; private set; }
+        public string TechnicalDiagnosis { get; private set; }
         public decimal? PartsCost { get; private set; }
-        public bool RequiresDownPayment { get; private set; }
+        public bool? RequiresDownPayment { get; private set; }
         public Guid? TechnicianId { get; private set; }
         public User? Technician { get; private set; }
         public DateTime? AcceptedAt { get; set; }
@@ -29,13 +29,12 @@ namespace MwSolucoes.Domain.Entities
         public IReadOnlyCollection<ServiceRequestHistory> Histories => _histories.AsReadOnly();
         private ServiceRequest() { }
 
-        public ServiceRequest(Guid userId, EquipmentType equipmentType, string brandModel, string reportedProblem, bool requiresDownPayment, IEnumerable<ServiceRequestItem> items)
+        public ServiceRequest(Guid userId, EquipmentType equipmentType, string brandModel, string reportedProblem)
         {
             ValidateUserId(userId);
             ValidateEquipmentType(equipmentType);
             ValidateBrandModel(brandModel);
             ValidateReportedProblem(reportedProblem);
-            ValidateItems(items);
 
             Id = Guid.NewGuid();
             Protocol = GenerateProtocol();
@@ -44,11 +43,7 @@ namespace MwSolucoes.Domain.Entities
             EquipmentType = equipmentType;
             BrandModel = brandModel;
             ReportedProblem = reportedProblem;
-            RequiresDownPayment = requiresDownPayment;
             Status = ServiceRequestStatus.Created;
-            Items = items
-                .DistinctBy(item => item.MaintenanceServiceId)
-                .ToList();
         }
 
         private static string GenerateProtocol()
@@ -83,12 +78,6 @@ namespace MwSolucoes.Domain.Entities
         {
             if (string.IsNullOrWhiteSpace(reportedProblem))
                 throw new DomainException("Problema relatado é obrigatório.");
-        }
-
-        private void ValidateItems(IEnumerable<ServiceRequestItem> items)
-        {
-            if (items is null || !items.Any())
-                throw new DomainException("A solicitação deve conter ao menos um serviço.");
         }
 
         private void ValidateNonNegativeValue(decimal? value, string fieldName)
@@ -161,12 +150,44 @@ namespace MwSolucoes.Domain.Entities
             _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.Rejected, "O Serviço foi rejeitado."));
         }
 
-        public void SetTechnicalData(string? technicalDiagnosis, decimal? partsCost)
+        public void SetTechnicalData(string technicalDiagnosis, decimal? partsCost)
         {
             ValidateNonNegativeValue(partsCost, "Valor de peças");
 
             TechnicalDiagnosis = technicalDiagnosis;
             PartsCost = partsCost;
+        }
+        public void UpdateItems(List<ServiceRequestItem> incomingItems)
+        {
+            if (Status != ServiceRequestStatus.Created && Status != ServiceRequestStatus.InProgress)
+            {
+                throw new DomainException("Os serviços só podem ser alterados durante a criação ou análise técnica.");
+            }
+
+            if (incomingItems == null || incomingItems.Count == 0)
+            {
+                throw new DomainException("Para gerar o orçamento, insira ao menos um serviço.");
+            }
+
+            Items ??= new List<ServiceRequestItem>();
+
+            var itemsToRemove = Items
+                .Where(existing => !incomingItems.Any(incoming => incoming.MaintenanceServiceId == existing.MaintenanceServiceId))
+                .ToList();
+
+            var itemsToAdd = incomingItems
+                .Where(incoming => !Items.Any(existing => existing.MaintenanceServiceId == incoming.MaintenanceServiceId))
+                .ToList();
+
+            foreach (var item in itemsToRemove)
+            {
+                Items.Remove(item);
+            }
+
+            foreach (var item in itemsToAdd)
+            {
+                Items.Add(item);
+            }
         }
     }
 }

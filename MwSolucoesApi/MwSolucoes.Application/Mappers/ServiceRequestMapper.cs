@@ -22,10 +22,6 @@ namespace MwSolucoes.Application.Mappers
                 EquipmentType = (int)serviceRequest.EquipmentType,
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
-                TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                PartsCost = serviceRequest.PartsCost,
-                RequiresDownPayment = serviceRequest.RequiresDownPayment,
-                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
@@ -74,21 +70,15 @@ namespace MwSolucoes.Application.Mappers
             };
         }
 
-        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId, string? technicalDiagnosis, decimal partsCost, List<ServiceRequestItem> items)
+        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId)
         {
-            var newUser = new ServiceRequest(
+            var serviceRequest = new ServiceRequest(
                 userId,
                 (EquipmentType)request.EquipmentType,
                 request.BrandModel,
-                request.ReportedProblem,
-                request.RequiresDownPayment,
-                items
+                request.ReportedProblem
             );
-            newUser.SetTechnicalData(
-                technicalDiagnosis,
-                partsCost
-            );
-            return newUser;
+            return serviceRequest;
         }
         public static DomainServiceRequestFilters MapToDomainFilters(RequestGetServiceRequests filters)
         {
@@ -116,7 +106,7 @@ namespace MwSolucoes.Application.Mappers
             }));
         }
 
-        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse, List<MaintenanceService> maintenanceServices, User? user)
+        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse, List<MaintenanceService> maintenanceServices, User user)
         {
             return new ServiceRequestReportDto
             {

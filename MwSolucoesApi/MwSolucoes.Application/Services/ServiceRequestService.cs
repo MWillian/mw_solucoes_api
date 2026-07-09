@@ -48,19 +48,12 @@ namespace MwSolucoes.Application.Services
 
         public async Task<ResponseCreateServiceRequest> CreateServiceRequest(RequestCreateServiceRequest request, Guid userId)
         {
-            ValidateRequest(request);
-            User? user = await _userRepository.GetById(userId) ?? throw new NotFoundException("Usuário não encontrado.");
-            var items = await BuildItems(request.ServiceIds);
-
             const int maxAttempts = 5;
             for (var attempt = 0; attempt < maxAttempts; attempt++)
             {
                 var serviceRequest = ServiceRequestMapper.ToServiceRequest(
                     request,
-                    userId,
-                    request.TechnicalDiagnosis,
-                    request.PartsCost,
-                    items);
+                    userId);
 
                 var created = await _serviceRequestRepository.TryAdd(serviceRequest);
                 if (created)
@@ -121,6 +114,8 @@ namespace MwSolucoes.Application.Services
             ValidateServiceRequestTechnicianAssignment(serviceRequest, technicianId);
 
             serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.PartsCost);
+            var maintenanceServices = await BuildItems(request.ServiceIds);
+            serviceRequest.UpdateItems(maintenanceServices);
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
@@ -230,7 +225,7 @@ namespace MwSolucoes.Application.Services
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
             var pdfBytes = await GenerateReceiptPdfAsync(serviceRequestId, userId, isTechnician);
-            decimal? totalValue =  serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            decimal? totalValue = serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
             string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
             await _emailService.SendOrderServiceReceiptAsync(
                 serviceRequest.User.Email,
@@ -253,11 +248,7 @@ namespace MwSolucoes.Application.Services
                 throw new NotFoundException("Solicitação de serviço não encontrada.");
             }
         }
-        private void ValidateRequest(RequestCreateServiceRequest request)
-        {
-            if (request.ServiceIds is null || request.ServiceIds.Count == 0)
-                throw new ErrorOnValidationException("A solicitação deve conter ao menos um serviço.");
-        }
+
         private async Task<List<ServiceRequestItem>> BuildItems(List<int> serviceIds)
         {
             var distinctServiceIds = serviceIds
