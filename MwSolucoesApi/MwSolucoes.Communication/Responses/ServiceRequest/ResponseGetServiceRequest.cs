@@ -17,5 +17,8 @@ namespace MwSolucoes.Communication.Responses.ServiceRequest
         public bool? RequiresDownPayment { get; set; }
         public DateTime? AcceptedAt { get; set; }
         public List<int> ServiceIds { get; set; } = [];
+        public PaymentMethod? PaymentMethod { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public bool IsPaid => PaymentDate.HasValue;
     }
 }

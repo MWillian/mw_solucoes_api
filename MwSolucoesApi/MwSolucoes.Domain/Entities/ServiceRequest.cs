@@ -24,6 +24,10 @@ namespace MwSolucoes.Domain.Entities
         public DateTime? AcceptedAt { get; set; }
         public string? AcceptedIpAddress { get; set; }
         public string? AcceptedUserAgent { get; set; }
+        public PaymentMethod PaymentMethod { get; private set; }
+        public DateTime? PaymentDate { get; private set; }
+        public bool IsPaid { get; private set; }
+
         public User User { get; private set; } = null!;
         private readonly List<ServiceRequestHistory> _histories = [];
         public IReadOnlyCollection<ServiceRequestHistory> Histories => _histories.AsReadOnly();
@@ -148,6 +152,20 @@ namespace MwSolucoes.Domain.Entities
             }
             Status = ServiceRequestStatus.Rejected;
             _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.Rejected, "O Serviço foi rejeitado."));
+        }
+        public void ProcessPayment(PaymentMethod paymentMethod)
+        {
+            if (Status != ServiceRequestStatus.Finished)
+            {
+                throw new DomainException("Apenas ordens de serviço finalizadas podem ser pagas.");
+            }
+
+            if (IsPaid)
+            {
+                throw new DomainException("O pagamento já foi processado para esta solicitação de serviço.");
+            }
+            PaymentMethod = paymentMethod;
+            PaymentDate = DateTime.UtcNow;
         }
 
         public void SetTechnicalData(string technicalDiagnosis, decimal? partsCost)

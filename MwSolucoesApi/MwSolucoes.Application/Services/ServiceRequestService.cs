@@ -1,5 +1,6 @@
 ﻿using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.Mappers;
+using MwSolucoes.Communication.Requests.Payment;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses.ServiceRequest;
 using MwSolucoes.Domain.Communication;
@@ -120,6 +121,30 @@ namespace MwSolucoes.Application.Services
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
 
+        public async Task ProcessPaymentAsync(Guid serviceRequestId, RequestProcessPayment request, Guid operatorId)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
+                ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+
+            serviceRequest.ProcessPayment(request.PaymentMethod);
+
+            await _serviceRequestRepository.Update(serviceRequest);
+
+            var pdfBytes = await GenerateReceiptPdfAsync(serviceRequestId, operatorId, isTechnician: false);
+
+            decimal? totalValue = serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            string formattedValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
+
+            await _emailService.SendOrderServiceReceiptAsync(
+                serviceRequest.User.Email,
+                serviceRequest.User.Name,
+                serviceRequest.Protocol,
+                formattedValue,
+                pdfBytes,
+                $"Recibo_OS_{serviceRequest.Protocol}.pdf"
+            );
+        }
+
         public async Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician)
         {
             var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
@@ -173,13 +198,15 @@ namespace MwSolucoes.Application.Services
                 throw new UnprocessableEntityException("O recibo só pode ser gerado para Ordens de Serviço finalizadas.");
             }
 
+            if (!serviceRequestResponse.IsPaid)
+            {
+                throw new UnprocessableEntityException("A ordem de serviço tem de estar paga para gerar o recibo.");
+            }
             var maintenanceServices = await _maintenanceServiceRepository.GetByIds(serviceRequestResponse.ServiceIds);
             var customer = await _userRepository.GetById(serviceRequestResponse.UserId)
                 ?? throw new NotFoundException("Usuário não encontrado.");
 
-            PaymentMethod paymentMethod = PaymentMethod.Pix; //temporário
-
-            var receiptDto = ServiceRequestMapper.ToReceiptReportDto(serviceRequestResponse, maintenanceServices, customer, paymentMethod);
+            var receiptDto = ServiceRequestMapper.ToReceiptReportDto(serviceRequestResponse, maintenanceServices, customer, serviceRequestResponse.PaymentMethod!.Value);
 
             var pdfBytes = _receiptReportGenerator.GenerateReceiptPdf(receiptDto);
 
