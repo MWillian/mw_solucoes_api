@@ -21,5 +21,7 @@ namespace MwSolucoes.Application.Interfaces
         Task<byte[]> GenerateServiceRequestPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
         Task<byte[]> GenerateReceiptPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
         Task ApproveBudgetAsync(Guid id, Guid userId, string ipAddress, string userAgent);
+        Task SendOrderServiceProposalEmailAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
+        Task SendOrderServiceReceiptAsync(Guid serviceRequestId, Guid userId, bool isTechnician);
     }
 }

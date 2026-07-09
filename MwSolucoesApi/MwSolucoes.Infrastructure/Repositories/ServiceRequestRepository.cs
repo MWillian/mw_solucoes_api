@@ -36,6 +36,7 @@ namespace MwSolucoes.Infrastructure.Repositories
         public async Task<ServiceRequest?> GetById(Guid id) =>
             await _context.ServiceRequests
                 .Include(serviceRequest => serviceRequest.Items)
+                .Include(ServiceRequest => ServiceRequest.User)
                 .FirstOrDefaultAsync(m => m.Id.Equals(id));
 
         public async Task<ServiceRequest?> GetByProtocol(string protocol) =>
