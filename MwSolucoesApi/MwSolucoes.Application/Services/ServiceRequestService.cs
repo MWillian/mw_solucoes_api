@@ -1,5 +1,6 @@
 ﻿using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Application.Mappers;
+using MwSolucoes.Communication.Requests.Payment;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses.ServiceRequest;
 using MwSolucoes.Domain.Communication;
@@ -48,20 +49,12 @@ namespace MwSolucoes.Application.Services
 
         public async Task<ResponseCreateServiceRequest> CreateServiceRequest(RequestCreateServiceRequest request, Guid userId)
         {
-            ValidateRequest(request);
-            User? user = await _userRepository.GetById(userId) ?? throw new NotFoundException("Usuário não encontrado.");
-            var items = await BuildItems(request.ServiceIds);
-
             const int maxAttempts = 5;
             for (var attempt = 0; attempt < maxAttempts; attempt++)
             {
                 var serviceRequest = ServiceRequestMapper.ToServiceRequest(
                     request,
-                    userId,
-                    request.TechnicalDiagnosis,
-                    request.LaborCost,
-                    request.PartsCost,
-                    items);
+                    userId);
 
                 var created = await _serviceRequestRepository.TryAdd(serviceRequest);
                 if (created)
@@ -121,9 +114,35 @@ namespace MwSolucoes.Application.Services
             ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, technicianId);
 
-            serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.LaborCost, request.PartsCost);
+            serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.PartsCost);
+            var maintenanceServices = await BuildItems(request.ServiceIds);
+            serviceRequest.UpdateItems(maintenanceServices);
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
+        }
+
+        public async Task ProcessPaymentAsync(Guid serviceRequestId, RequestProcessPayment request, Guid operatorId)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
+                ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+
+            serviceRequest.ProcessPayment(request.PaymentMethod);
+
+            await _serviceRequestRepository.Update(serviceRequest);
+
+            var pdfBytes = await GenerateReceiptPdfAsync(serviceRequestId, operatorId, isTechnician: false);
+
+            decimal? totalValue = serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            string formattedValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
+
+            await _emailService.SendOrderServiceReceiptAsync(
+                serviceRequest.User.Email,
+                serviceRequest.User.Name,
+                serviceRequest.Protocol,
+                formattedValue,
+                pdfBytes,
+                $"Recibo_OS_{serviceRequest.Protocol}.pdf"
+            );
         }
 
         public async Task<ResponseGetServiceRequest> GetServiceRequestById(Guid serviceRequestId, Guid userId, bool isTechnician)
@@ -179,13 +198,15 @@ namespace MwSolucoes.Application.Services
                 throw new UnprocessableEntityException("O recibo só pode ser gerado para Ordens de Serviço finalizadas.");
             }
 
+            if (!serviceRequestResponse.IsPaid)
+            {
+                throw new UnprocessableEntityException("A ordem de serviço tem de estar paga para gerar o recibo.");
+            }
             var maintenanceServices = await _maintenanceServiceRepository.GetByIds(serviceRequestResponse.ServiceIds);
             var customer = await _userRepository.GetById(serviceRequestResponse.UserId)
                 ?? throw new NotFoundException("Usuário não encontrado.");
 
-            PaymentMethod paymentMethod = PaymentMethod.Pix; //temporário
-
-            var receiptDto = ServiceRequestMapper.ToReceiptReportDto(serviceRequestResponse, maintenanceServices, customer, paymentMethod);
+            var receiptDto = ServiceRequestMapper.ToReceiptReportDto(serviceRequestResponse, maintenanceServices, customer, serviceRequestResponse.PaymentMethod!.Value);
 
             var pdfBytes = _receiptReportGenerator.GenerateReceiptPdf(receiptDto);
 
@@ -213,7 +234,7 @@ namespace MwSolucoes.Application.Services
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
             var pdfBytes = await GenerateServiceRequestPdfAsync(serviceRequestId, userId, isTechnician);
-            decimal? totalValue = serviceRequest.LaborCost + serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            decimal? totalValue = serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
             string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
             await _emailService.SendOrderServiceProposalAsync(
                 serviceRequest.User.Email,
@@ -231,7 +252,7 @@ namespace MwSolucoes.Application.Services
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
             var pdfBytes = await GenerateReceiptPdfAsync(serviceRequestId, userId, isTechnician);
-            decimal? totalValue = serviceRequest.LaborCost + serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            decimal? totalValue = serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
             string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
             await _emailService.SendOrderServiceReceiptAsync(
                 serviceRequest.User.Email,
@@ -254,11 +275,7 @@ namespace MwSolucoes.Application.Services
                 throw new NotFoundException("Solicitação de serviço não encontrada.");
             }
         }
-        private void ValidateRequest(RequestCreateServiceRequest request)
-        {
-            if (request.ServiceIds is null || request.ServiceIds.Count == 0)
-                throw new ErrorOnValidationException("A solicitação deve conter ao menos um serviço.");
-        }
+
         private async Task<List<ServiceRequestItem>> BuildItems(List<int> serviceIds)
         {
             var distinctServiceIds = serviceIds

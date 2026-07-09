@@ -22,11 +22,6 @@ namespace MwSolucoes.Application.Mappers
                 EquipmentType = (int)serviceRequest.EquipmentType,
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
-                TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                LaborCost = serviceRequest.LaborCost,
-                PartsCost = serviceRequest.PartsCost,
-                RequiresDownPayment = serviceRequest.RequiresDownPayment,
-                ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
@@ -43,7 +38,6 @@ namespace MwSolucoes.Application.Mappers
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
                 ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList(),
@@ -70,29 +64,21 @@ namespace MwSolucoes.Application.Mappers
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
                 ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
-        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId, string? technicalDiagnosis, decimal laborCost, decimal partsCost, List<ServiceRequestItem> items)
+        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId)
         {
-            var newUser = new ServiceRequest(
+            var serviceRequest = new ServiceRequest(
                 userId,
                 (EquipmentType)request.EquipmentType,
                 request.BrandModel,
-                request.ReportedProblem,
-                request.RequiresDownPayment,
-                items
+                request.ReportedProblem
             );
-            newUser.SetTechnicalData(
-                technicalDiagnosis,
-                laborCost,
-                partsCost
-            );
-            return newUser;
+            return serviceRequest;
         }
         public static DomainServiceRequestFilters MapToDomainFilters(RequestGetServiceRequests filters)
         {
@@ -102,7 +88,6 @@ namespace MwSolucoes.Application.Mappers
                 CreatedAt = filters.CreatedAt,
                 Protocol = filters.Protocol,
                 EquipmentType = filters.EquipmentType,
-                LaborCost = filters.LaborCost,
                 PartsCost = filters.PartsCost,
                 Page = filters.Page,
                 PageSize = filters.PageSize,
@@ -121,7 +106,7 @@ namespace MwSolucoes.Application.Mappers
             }));
         }
 
-        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse, List<MaintenanceService> maintenanceServices, User? user)
+        public static ServiceRequestReportDto ToServiceRequestDto(ResponseGetServiceRequest serviceRequestResponse, List<MaintenanceService> maintenanceServices, User user)
         {
             return new ServiceRequestReportDto
             {
@@ -132,7 +117,6 @@ namespace MwSolucoes.Application.Mappers
                 ReportedProblem = serviceRequestResponse.ReportedProblem,
                 TechnicalDiagnosis = serviceRequestResponse.TechnicalDiagnosis,
                 AcceptedAt = serviceRequestResponse.AcceptedAt,
-                LaborCost = serviceRequestResponse.LaborCost,
                 PartsCost = serviceRequestResponse.PartsCost,
                 CustomerCpf = user.CPF,
                 CustomerEmail = user.Email,
@@ -157,7 +141,7 @@ namespace MwSolucoes.Application.Mappers
             PaymentMethod paymentMethod)
         {
             decimal servicesTotal = maintenanceServices.Sum(s => s.Price);
-            decimal? totalAmount = servicesTotal + serviceRequestResponse.LaborCost + serviceRequestResponse.PartsCost;
+            decimal? totalAmount = servicesTotal + serviceRequestResponse.PartsCost;
 
             return new ReceiptReportDto
             {
@@ -165,7 +149,6 @@ namespace MwSolucoes.Application.Mappers
                 FinishedAt = DateTime.Now,
                 Equipment = serviceRequestResponse.EquipmentType,
                 BrandModel = serviceRequestResponse.BrandModel,
-                LaborCost = serviceRequestResponse.LaborCost,
                 PartsCost = serviceRequestResponse.PartsCost,
                 CustomerCpf = user.CPF,
                 CustomerName = user.Name,

@@ -13,8 +13,7 @@ namespace MwSolucoes.Domain.DTOs
         public EquipmentType Equipment { get; set; }
         public string BrandModel { get; set; } = string.Empty;
         public string ReportedProblem { get; set; } = string.Empty;
-        public string TechnicalDiagnosis { get; set; } = string.Empty;
-        public decimal? LaborCost { get; set; }
+        public string? TechnicalDiagnosis { get; set; } = string.Empty;
         public decimal? PartsCost { get; set; }
         public ServiceRequestStatus Status { get; set; }
         public DateTime? AcceptedAt { get; set; }
@@ -33,7 +32,6 @@ namespace MwSolucoes.Domain.DTOs
         public string CustomerCpf { get; set; } = string.Empty;
         public EquipmentType Equipment { get; set; }
         public string BrandModel { get; set; } = string.Empty;
-        public decimal? LaborCost { get; set; }
         public decimal? PartsCost { get; set; }
         public List<MaintenanceServiceItemDto> Services { get; set; } = [];
         public decimal? TotalAmount { get; set; }

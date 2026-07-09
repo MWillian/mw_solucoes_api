@@ -8,7 +8,6 @@ namespace MwSolucoes.Domain.Repositories.Filters
         public DateTime? CreatedAt { get; set; }
         public string? Protocol { get; set; }
         public EquipmentType? EquipmentType { get; set; }
-        public decimal? LaborCost { get; set; }
         public decimal? PartsCost { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 20;

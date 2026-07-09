@@ -83,11 +83,6 @@ namespace MwSolucoes.Infrastructure.Repositories
                 query = query.Where(sr => sr.EquipmentType == filters.EquipmentType.Value);
             }
 
-            if (filters.LaborCost.HasValue)
-            {
-                query = query.Where(sr => sr.LaborCost == filters.LaborCost.Value);
-            }
-
             if (filters.PartsCost.HasValue)
             {
                 query = query.Where(sr => sr.PartsCost == filters.PartsCost.Value);
@@ -105,8 +100,6 @@ namespace MwSolucoes.Infrastructure.Repositories
                 ("protocol", _) => query.OrderBy(sr => sr.Protocol),
                 ("equipmenttype", "desc") => query.OrderByDescending(sr => sr.EquipmentType),
                 ("equipmenttype", _) => query.OrderBy(sr => sr.EquipmentType),
-                ("laborcost", "desc") => query.OrderByDescending(sr => sr.LaborCost),
-                ("laborcost", _) => query.OrderBy(sr => sr.LaborCost),
                 ("partscost", "desc") => query.OrderByDescending(sr => sr.PartsCost),
                 ("partscost", _) => query.OrderBy(sr => sr.PartsCost),
                 ("createdat", "asc") => query.OrderBy(sr => sr.CreatedAt),
