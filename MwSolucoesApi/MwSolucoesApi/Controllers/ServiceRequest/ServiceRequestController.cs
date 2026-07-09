@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using MwSolucoes.Application.Interfaces;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses;
 using MwSolucoes.Communication.Responses.ServiceRequest;
-using MwSolucoes.Domain.Enums;
+using MwSolucoes.Domain.Communication;
 
 namespace MwSolucoes.Api.Controllers.ServiceRequest
 {
@@ -14,7 +13,7 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
     public class ServiceRequestController : MainController
     {
         private readonly IServiceRequestService _serviceRequestService;
-        public ServiceRequestController(IServiceRequestService serviceRequestService)
+        public ServiceRequestController(IServiceRequestService serviceRequestService, IEmailService emailService)
         {
             _serviceRequestService = serviceRequestService;
         }
@@ -149,19 +148,62 @@ namespace MwSolucoes.Api.Controllers.ServiceRequest
             return Ok(timeline);
         }
 
-        [HttpPut("{id:guid}/approve-budget")]
+        [HttpGet("{id:guid}/download-os")]
+        [Authorize]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DownloadOrderServicePdf([FromRoute] Guid id)
+        {
+            Guid userId = GetUserId();
+            byte[] pdfBytes = await _serviceRequestService.GenerateServiceRequestPdfAsync(id, userId, true);
+            return File(pdfBytes, "application/pdf", $"Ordem_Servico_{id}.pdf");
+        }
+
+        [HttpGet("{id:guid}/download-receipt")]
         [Authorize] 
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DownloadReceiptPdf([FromRoute] Guid id)
+        {
+            Guid userId = GetUserId();
+            byte[] pdfBytes = await _serviceRequestService.GenerateReceiptPdfAsync(id, userId, false);
+            return File(pdfBytes, "application/pdf", $"Recibo_Quitacao_{id}.pdf");
+        }
+
+        [HttpPut("{id:guid}/approve-budget")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> ApproveBudget([FromRoute] Guid id)
         {
             Guid userId = GetUserId();
 
-            
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "IP Desconhecido";
             string userAgent = Request.Headers.UserAgent.ToString();
 
             await _serviceRequestService.ApproveBudgetAsync(id, userId, ipAddress, userAgent);
 
+            return NoContent();
+        }
+
+        [HttpPut("{serviceRequestId:guid}/send-os")]
+        [Authorize(Policy = "Technician")]
+        public async Task<IActionResult> SendOrderServiceToClientEmail([FromRoute] Guid serviceRequestId)
+        {
+            Guid userId = GetUserId();
+            var isTechnician = User.IsInRole("Técnico");
+            await _serviceRequestService.SendOrderServiceProposalEmailAsync(serviceRequestId, userId, isTechnician);
+            return NoContent();
+        }
+
+        [HttpPut("{serviceRequestId:guid}/send-receipt")]
+        [Authorize(Policy = "Technician")]
+        public async Task<IActionResult> SendReceiptOfFullDischargeToClientEmail([FromRoute] Guid serviceRequestId)
+        {
+            Guid userId = GetUserId();
+            var isTechnician = User.IsInRole("Técnico");
+            await _serviceRequestService.SendOrderServiceReceiptAsync(serviceRequestId, userId, isTechnician);
             return NoContent();
         }
     }

@@ -2,6 +2,7 @@
 using MwSolucoes.Application.Mappers;
 using MwSolucoes.Communication.Requests.ServiceRequest;
 using MwSolucoes.Communication.Responses.ServiceRequest;
+using MwSolucoes.Domain.Communication;
 using MwSolucoes.Domain.Entities;
 using MwSolucoes.Domain.Enums;
 using MwSolucoes.Domain.PdfGenerator;
@@ -19,14 +20,21 @@ namespace MwSolucoes.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IOrderServiceReportGenerator _pdfGenerator;
         private readonly IReceiptReportGenerator _receiptReportGenerator;
+        private readonly IEmailService _emailService;
 
-        public ServiceRequestService(IServiceRequestRepository serviceRequestRepository, IMaintenanceServiceRepository maintenanceServiceRepository, IUserRepository userRepository, IOrderServiceReportGenerator pdfGenerator, IReceiptReportGenerator receiptReportGenerator)
+        public ServiceRequestService(IServiceRequestRepository serviceRequestRepository,
+                IMaintenanceServiceRepository maintenanceServiceRepository,
+                IUserRepository userRepository,
+                IOrderServiceReportGenerator pdfGenerator,
+                IReceiptReportGenerator receiptReportGenerator,
+                IEmailService emailService)
         {
             _serviceRequestRepository = serviceRequestRepository;
             _maintenanceServiceRepository = maintenanceServiceRepository;
             _userRepository = userRepository;
             _pdfGenerator = pdfGenerator;
             _receiptReportGenerator = receiptReportGenerator;
+            _emailService = emailService;
         }
 
         // Main methods
@@ -149,6 +157,8 @@ namespace MwSolucoes.Application.Services
 
         public async Task<byte[]> GenerateServiceRequestPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician)
         {
+            await ValidateServiceRequestOwner(serviceRequestId, userId);
+
             var serviceRequestResponse = await GetServiceRequestById(serviceRequestId, userId, isTechnician);
 
             var maintenanceServices = await _maintenanceServiceRepository.GetByIds(serviceRequestResponse.ServiceIds);
@@ -160,6 +170,8 @@ namespace MwSolucoes.Application.Services
         }
         public async Task<byte[]> GenerateReceiptPdfAsync(Guid serviceRequestId, Guid userId, bool isTechnician)
         {
+            await ValidateServiceRequestOwner(serviceRequestId, userId);
+
             var serviceRequestResponse = await GetServiceRequestById(serviceRequestId, userId, isTechnician);
 
             if ((int)serviceRequestResponse.Status != 2)
@@ -195,8 +207,54 @@ namespace MwSolucoes.Application.Services
             await _serviceRequestRepository.Update(serviceRequest);
         }
 
+        public async Task SendOrderServiceProposalEmailAsync(Guid serviceRequestId, Guid userId, bool isTechnician)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
+                ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
+            var pdfBytes = await GenerateServiceRequestPdfAsync(serviceRequestId, userId, isTechnician);
+            decimal? totalValue = serviceRequest.LaborCost + serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
+            await _emailService.SendOrderServiceProposalAsync(
+                serviceRequest.User.Email,
+                serviceRequest.User.Name,
+                serviceRequest.Protocol,
+                formattedTotalValue,
+                pdfBytes,
+                $"Ordem_de_Serviço_{serviceRequest.Protocol}.pdf"
+            );
+        }
+
+        public async Task SendOrderServiceReceiptAsync(Guid serviceRequestId, Guid userId, bool isTechnician)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId)
+                ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
+            var pdfBytes = await GenerateReceiptPdfAsync(serviceRequestId, userId, isTechnician);
+            decimal? totalValue = serviceRequest.LaborCost + serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
+            await _emailService.SendOrderServiceReceiptAsync(
+                serviceRequest.User.Email,
+                serviceRequest.User.Name,
+                serviceRequest.Protocol,
+                formattedTotalValue,
+                pdfBytes,
+                $"Ordem_de_Serviço_{serviceRequest.Protocol}.pdf"
+            );
+        }
+
         //Helper Methods
-        private static void ValidateRequest(RequestCreateServiceRequest request)
+        private async Task ValidateServiceRequestOwner(Guid serviceRequestId, Guid userId)
+        {
+            var serviceRequest = await _serviceRequestRepository.GetById(serviceRequestId) ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
+            bool isOwner = serviceRequest.UserId == userId;
+            bool isAssignedTechnician = serviceRequest.TechnicianId == userId;
+            if (!isOwner && !isAssignedTechnician)
+            {
+                throw new NotFoundException("Solicitação de serviço não encontrada.");
+            }
+        }
+        private void ValidateRequest(RequestCreateServiceRequest request)
         {
             if (request.ServiceIds is null || request.ServiceIds.Count == 0)
                 throw new ErrorOnValidationException("A solicitação deve conter ao menos um serviço.");

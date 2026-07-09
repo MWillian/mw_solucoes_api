@@ -21,6 +21,46 @@ namespace MwSolucoes.Infrastructure.Communication
             _templateRenderer = templateRenderer;
         }
 
+        public async Task SendOrderServiceProposalAsync(string toEmail, string customerName, string protocol, string totalValue, byte[] pdfAttachment, string fileName)
+        {
+            var replacements = new Dictionary<string, string>
+            {
+                { "CustomerName", customerName },
+                { "Protocol", protocol },
+                { "TotalValue", totalValue }
+            };
+
+            string htmlBody = await _templateRenderer.RenderAsync("order-service-prop", replacements);
+
+            await SendRawEmailAsync(
+                toEmail,
+                $"Nova Ordem de Serviço Disponível (OS: #{protocol}) - MW Soluções",
+                htmlBody,
+                pdfAttachment,
+                fileName
+            );
+        }
+
+        public async Task SendOrderServiceReceiptAsync(string toEmail, string customerName, string protocol, string totalValue, byte[] pdfAttachment, string fileName)
+        {
+            var replacements = new Dictionary<string, string>
+            {
+                { "CustomerName", customerName },
+                { "Protocol", protocol },
+                { "TotalValue", totalValue }
+            };
+
+            string htmlBody = await _templateRenderer.RenderAsync("order-service-receipt", replacements);
+
+            await SendRawEmailAsync(
+                toEmail,
+                $"Seu Recibo de Quitação (OS: #{protocol}) - MW Soluções",
+                htmlBody,
+                pdfAttachment,
+                fileName
+            );
+        }
+
         public async Task SendPasswordResetAsync(string toEmail, string customerName, string confirmationLink)
         {
             var replacements = new Dictionary<string, string>
@@ -46,7 +86,7 @@ namespace MwSolucoes.Infrastructure.Communication
 
             await SendRawEmailAsync(toEmail, "Confirme sua conta - MW Soluções", htmlBody);
         }
-        private async Task SendRawEmailAsync(string to, string subject, string htmlBody)
+        private async Task SendRawEmailAsync(string to, string subject, string htmlBody, byte[]? pdfAttachment = null, string? fileName = null)
         {
             var message = new EmailMessage
             {
@@ -55,7 +95,17 @@ namespace MwSolucoes.Infrastructure.Communication
                 Subject = subject,
                 HtmlBody = htmlBody
             };
-
+            if (pdfAttachment is not null && fileName is not null)
+            {
+                message.Attachments = new List<EmailAttachment>
+                {
+                    new EmailAttachment
+                    {
+                        Filename = fileName,
+                        Content = Convert.ToBase64String(pdfAttachment)
+                    }
+                };
+            }
             await _resend.EmailSendAsync(message);
         }
     }
