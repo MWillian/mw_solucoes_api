@@ -59,7 +59,6 @@ namespace MwSolucoes.Application.Services
                     request,
                     userId,
                     request.TechnicalDiagnosis,
-                    request.LaborCost,
                     request.PartsCost,
                     items);
 
@@ -121,7 +120,7 @@ namespace MwSolucoes.Application.Services
             ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, technicianId);
 
-            serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.LaborCost, request.PartsCost);
+            serviceRequest.SetTechnicalData(request.TechnicalDiagnosis, request.PartsCost);
             await _serviceRequestRepository.Update(serviceRequest);
             return ServiceRequestMapper.ToResponseUpdateServiceRequest(serviceRequest);
         }
@@ -213,7 +212,7 @@ namespace MwSolucoes.Application.Services
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
             var pdfBytes = await GenerateServiceRequestPdfAsync(serviceRequestId, userId, isTechnician);
-            decimal? totalValue = serviceRequest.LaborCost + serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            decimal? totalValue = serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
             string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
             await _emailService.SendOrderServiceProposalAsync(
                 serviceRequest.User.Email,
@@ -231,7 +230,7 @@ namespace MwSolucoes.Application.Services
                 ?? throw new NotFoundException("Solicitação de serviço não encontrada.");
             ValidateServiceRequestTechnicianAssignment(serviceRequest, userId);
             var pdfBytes = await GenerateReceiptPdfAsync(serviceRequestId, userId, isTechnician);
-            decimal? totalValue = serviceRequest.LaborCost + serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
+            decimal? totalValue =  serviceRequest.PartsCost + serviceRequest.Items.Sum(item => item.UnitPrice);
             string formattedTotalValue = (totalValue ?? 0).ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
             await _emailService.SendOrderServiceReceiptAsync(
                 serviceRequest.User.Email,

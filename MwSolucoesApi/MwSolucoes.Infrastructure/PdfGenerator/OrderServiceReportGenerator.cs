@@ -99,16 +99,13 @@ namespace MwSolucoes.Infrastructure.PdfGenerator
                         }
                         table.Cell().ColumnSpan(2).PaddingTop(6).PaddingBottom(2).Text("Custos Adicionais da Bancada:").SemiBold();
 
-                        table.Cell().Text("- Mão de Obra");
-                        var labor = os.LaborCost.HasValue ? os.LaborCost.Value.ToString("C") : "0,00";
-                        table.Cell().AlignRight().Text($"{labor}");
                         table.Cell().Text("- Peças Extras");
                         var parts = os.PartsCost.HasValue ? os.PartsCost.Value.ToString("C") : "0,00";
                         table.Cell().AlignRight().Text($"{parts}");
                     });
                 });
 
-                decimal? total = os.LaborCost + os.PartsCost + os.Services.Sum(s => s.Price);
+                decimal? total = os.PartsCost + os.Services.Sum(s => s.Price);
 
                 column.Item().BorderLeft(1).BorderRight(1).BorderBottom(1).BorderColor(Colors.Black).Background(Colors.Grey.Lighten4).Padding(5).Row(row =>
                 {

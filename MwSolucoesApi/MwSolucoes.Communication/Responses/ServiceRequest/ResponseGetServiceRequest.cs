@@ -13,7 +13,6 @@ namespace MwSolucoes.Communication.Responses.ServiceRequest
         public string BrandModel { get; set; } = string.Empty;
         public string ReportedProblem { get; set; } = string.Empty;
         public string? TechnicalDiagnosis { get; set; } = string.Empty;
-        public decimal? LaborCost { get; set; }
         public decimal? PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
         public List<int> ServiceIds { get; set; } = [];

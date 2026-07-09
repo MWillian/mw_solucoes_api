@@ -17,7 +17,6 @@ namespace MwSolucoes.Domain.Entities
         public string BrandModel { get; private set; } = string.Empty;
         public string ReportedProblem { get; private set; } = string.Empty;
         public string? TechnicalDiagnosis { get; private set; }
-        public decimal? LaborCost { get; private set; }
         public decimal? PartsCost { get; private set; }
         public bool RequiresDownPayment { get; private set; }
         public Guid? TechnicianId { get; private set; }
@@ -162,13 +161,11 @@ namespace MwSolucoes.Domain.Entities
             _histories.Add(new ServiceRequestHistory(this.Id, ServiceRequestHistoryStatus.Rejected, "O Serviço foi rejeitado."));
         }
 
-        public void SetTechnicalData(string? technicalDiagnosis, decimal? laborCost, decimal? partsCost)
+        public void SetTechnicalData(string? technicalDiagnosis, decimal? partsCost)
         {
-            ValidateNonNegativeValue(laborCost, "Valor de mão de obra");
             ValidateNonNegativeValue(partsCost, "Valor de peças");
 
             TechnicalDiagnosis = technicalDiagnosis;
-            LaborCost = laborCost;
             PartsCost = partsCost;
         }
     }

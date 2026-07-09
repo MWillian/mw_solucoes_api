@@ -13,7 +13,6 @@ namespace MwSolucoes.Communication.Requests.ServiceRequest
         [Required(ErrorMessage = "A descrição inicial do problema do dispositivo está vazia.")]
         public string ReportedProblem { get; set; } = string.Empty;
         public string? TechnicalDiagnosis { get; set; }
-        public decimal LaborCost { get; set; }
         public decimal PartsCost { get; set; }
         public bool RequiresDownPayment { get; set; }
 

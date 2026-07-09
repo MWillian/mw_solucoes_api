@@ -586,7 +586,6 @@ Abre uma nova ordem de serviço na plataforma vinculada ao cliente autenticado. 
   "brandModel": "Notebook Dell Inspiron 15",
   "reportedProblem": "A tela está piscando e o teclado parou de funcionar.",
   "technicalDiagnosis": "",
-  "laborCost": 0,
   "partsCost": 0,
   "requiresDownPayment": false,
   "serviceIds": [1, 2]
@@ -677,7 +676,6 @@ Permite que o técnico responsável insira ou altere o diagnóstico técnico e o
 ```json
 {
   "technicalDiagnosis": "Constatada oxidação na placa e rompimento do flat cable.",
-  "laborCost": 150.00,
   "partsCost": 230.50
 }
 

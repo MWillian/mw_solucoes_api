@@ -23,7 +23,6 @@ namespace MwSolucoes.Application.Mappers
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
                 ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
@@ -43,7 +42,6 @@ namespace MwSolucoes.Application.Mappers
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
                 ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList(),
@@ -70,14 +68,13 @@ namespace MwSolucoes.Application.Mappers
                 BrandModel = serviceRequest.BrandModel,
                 ReportedProblem = serviceRequest.ReportedProblem,
                 TechnicalDiagnosis = serviceRequest.TechnicalDiagnosis,
-                LaborCost = serviceRequest.LaborCost,
                 PartsCost = serviceRequest.PartsCost,
                 RequiresDownPayment = serviceRequest.RequiresDownPayment,
                 ServiceIds = serviceRequest.Items.Select(item => item.MaintenanceServiceId).ToList()
             };
         }
 
-        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId, string? technicalDiagnosis, decimal laborCost, decimal partsCost, List<ServiceRequestItem> items)
+        public static ServiceRequest ToServiceRequest(RequestCreateServiceRequest request, Guid userId, string? technicalDiagnosis, decimal partsCost, List<ServiceRequestItem> items)
         {
             var newUser = new ServiceRequest(
                 userId,
@@ -89,7 +86,6 @@ namespace MwSolucoes.Application.Mappers
             );
             newUser.SetTechnicalData(
                 technicalDiagnosis,
-                laborCost,
                 partsCost
             );
             return newUser;
@@ -102,7 +98,6 @@ namespace MwSolucoes.Application.Mappers
                 CreatedAt = filters.CreatedAt,
                 Protocol = filters.Protocol,
                 EquipmentType = filters.EquipmentType,
-                LaborCost = filters.LaborCost,
                 PartsCost = filters.PartsCost,
                 Page = filters.Page,
                 PageSize = filters.PageSize,
@@ -132,7 +127,6 @@ namespace MwSolucoes.Application.Mappers
                 ReportedProblem = serviceRequestResponse.ReportedProblem,
                 TechnicalDiagnosis = serviceRequestResponse.TechnicalDiagnosis,
                 AcceptedAt = serviceRequestResponse.AcceptedAt,
-                LaborCost = serviceRequestResponse.LaborCost,
                 PartsCost = serviceRequestResponse.PartsCost,
                 CustomerCpf = user.CPF,
                 CustomerEmail = user.Email,
@@ -157,7 +151,7 @@ namespace MwSolucoes.Application.Mappers
             PaymentMethod paymentMethod)
         {
             decimal servicesTotal = maintenanceServices.Sum(s => s.Price);
-            decimal? totalAmount = servicesTotal + serviceRequestResponse.LaborCost + serviceRequestResponse.PartsCost;
+            decimal? totalAmount = servicesTotal + serviceRequestResponse.PartsCost;
 
             return new ReceiptReportDto
             {
@@ -165,7 +159,6 @@ namespace MwSolucoes.Application.Mappers
                 FinishedAt = DateTime.Now,
                 Equipment = serviceRequestResponse.EquipmentType,
                 BrandModel = serviceRequestResponse.BrandModel,
-                LaborCost = serviceRequestResponse.LaborCost,
                 PartsCost = serviceRequestResponse.PartsCost,
                 CustomerCpf = user.CPF,
                 CustomerName = user.Name,

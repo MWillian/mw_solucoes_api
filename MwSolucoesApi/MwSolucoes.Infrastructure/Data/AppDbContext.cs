@@ -86,7 +86,6 @@ namespace MwSolucoes.Infrastructure.Data
                 entity.Property(e => e.BrandModel).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.ReportedProblem).IsRequired().HasColumnType("text");
                 entity.Property(e => e.TechnicalDiagnosis).HasColumnType("text");
-                entity.Property(e => e.LaborCost).HasPrecision(10, 2);
                 entity.Property(e => e.PartsCost).HasPrecision(10, 2);
                 entity.Property(e => e.RequiresDownPayment).IsRequired().HasDefaultValue(false);
 

@@ -73,12 +73,6 @@ namespace MwSolucoes.Infrastructure.PdfGenerator
                             table.Cell().AlignRight().Text(servico.Price.ToString("C"));
                         }
 
-                        if (receipt.LaborCost > 0)
-                        {
-                            table.Cell().Text("- Mão de Obra Técnica");
-                            table.Cell().AlignRight().Text(receipt.LaborCost.Value.ToString("C"));
-                        }
-
                         if (receipt.PartsCost > 0)
                         {
                             table.Cell().Text("- Peças de Reposição");
