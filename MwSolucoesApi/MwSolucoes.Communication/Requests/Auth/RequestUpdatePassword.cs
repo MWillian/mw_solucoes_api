@@ -12,7 +12,7 @@ namespace MwSolucoes.Communication.Requests.Auth
         public string NewPassword { get; set; } = string.Empty;
 
         [Required]
-        [Compare("Password", ErrorMessageResourceType = typeof(RegisterUserErrorMessages), ErrorMessageResourceName = "DIFERENT_PASSWORDS")]
+        [Compare("NewPassword", ErrorMessageResourceType = typeof(RegisterUserErrorMessages), ErrorMessageResourceName = "DIFERENT_PASSWORDS")]
         public string ConfirmNewPassword { get; set; } = string.Empty;
     }
 }

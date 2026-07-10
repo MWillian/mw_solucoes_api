@@ -2,24 +2,24 @@
 
 ## Módulo: Autenticação (`/api/Auth`)
 
-Este módulo gerencia o ciclo de vida da sessão do usuário, incluindo login, emissão de tokens JWT, rotação de *Refresh Tokens* baseada em *cookies* HTTP-Only e atualização de credenciais.
+Este módulo gerencia o controle de acesso à plataforma MW Soluções. Ele implementa o padrão de segurança **JWT (JSON Web Token)** para sessões curtas e **Refresh Tokens via Cookies HttpOnly** para sessões seguras e duradouras. Além disso, os endpoints estão protegidos por regras de *Rate Limiting* para evitar ataques de força bruta.
 
 ---
 
 ### 1. Realizar Login
 
-Autentica o usuário e emite os tokens de acesso. O *Refresh Token* é retornado tanto no corpo da resposta quanto em um *cookie* seguro para facilitar a rotação.
+Autentica o usuário na plataforma. Se as credenciais estiverem corretas, a API retorna o JWT no corpo da requisição e injeta um Cookie seguro (`HttpOnly`) no navegador contendo o Refresh Token.
 
 * **Método:** `POST`
 * **Rota:** `/api/Auth/login`
 * **Autenticação:** Nenhuma (`AllowAnonymous`)
-* **Rate Limit:** Aplicado (Política `auth`)
+* **Proteção:** Rate Limiting (`auth`)
 
 **Corpo da Requisição (JSON)**
 
 ```json
 {
-  "email": "usuario@email.com",
+  "email": "tecnico@mwsolucoes.com",
   "password": "SenhaSegura123!"
 }
 
@@ -27,107 +27,111 @@ Autentica o usuário e emite os tokens de acesso. O *Refresh Token* é retornado
 
 **Respostas Esperadas**
 
-* `200 OK`: Login efetuado com sucesso.
-* **Cabeçalhos da Resposta:** Define o cookie `refreshToken` (`HttpOnly`, `Secure`, `SameSite=Strict`).
-* **Corpo:**
-```json
-{
-  "name": "Nome do Usuário",
-  "token": "eyJhbGciOiJIUzI1...",
-  "refreshToken": "bfcfbde9-a868-..."
-}
-
-```
-
-
-
-
-* `400 Bad Request`: Erro de validação nos campos enviados.
-* `401 Unauthorized`: Credenciais (e-mail ou senha) incorretas.
+* `200 OK`: Login efetuado. Retorna o `Token` (JWT) e injeta o Cookie `refreshToken` (expira em 7 dias).
+* `400 Bad Request`: Erro de validação nos campos.
+* `401 Unauthorized`: E-mail ou senha incorretos.
 * `404 Not Found`: Usuário não cadastrado.
 
 ---
 
-### 2. Atualizar Token (Refresh)
+### 2. Renovar Sessão (Refresh Token)
 
-Gera um novo token JWT de acesso utilizando um *Refresh Token* válido armazenado nos cookies do navegador.
+Gera um novo Token JWT sem exigir que o usuário digite a senha novamente. A API lê automaticamente o Cookie `refreshToken` injetado pelo endpoint de login.
 
 * **Método:** `POST`
 * **Rota:** `/api/Auth/refresh`
-* **Autenticação:** Nenhuma (validação feita via *cookie*)
-* **Rate Limit:** Aplicado (Política `auth`)
-
-**Cabeçalhos/Cookies da Requisição**
-
-* Requer o envio do *cookie*: `refreshToken=<valor_do_token>`
-
-**Corpo da Requisição**
-
-* Vazio.
+* **Autenticação:** Nenhuma (`AllowAnonymous` - Baseado em Cookie)
+* **Proteção:** Rate Limiting (`auth`)
 
 **Respostas Esperadas**
 
-* `200 OK`: Novo token de acesso gerado com sucesso.
-* **Cabeçalhos da Resposta:** Define um novo cookie `refreshToken` (rotação do token).
-* **Corpo:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1..."
-}
-
-```
-
-
-
-
-* `400 Bad Request`: O *cookie* `refreshToken` não foi enviado na requisição.
-* `401 Unauthorized`: O *Refresh Token* enviado expirou ou é inválido.
+* `200 OK`: Sessão renovada. Retorna o novo `Token` (JWT) e atualiza o Cookie com um novo Refresh Token.
+* `400 Bad Request`: Cookie de Refresh Token ausente na requisição.
+* `401 Unauthorized`: Refresh Token inválido ou expirado.
 
 ---
 
-### 3. Realizar Logout
+### 3. Encerrar Sessão (Logout)
 
-Revoga o *Refresh Token* atual no banco de dados e limpa os cookies da sessão do navegador.
+Invalida o Refresh Token atual no banco de dados e limpa o Cookie armazenado no navegador do usuário.
 
 * **Método:** `POST`
 * **Rota:** `/api/Auth/logout`
 * **Autenticação:** Requer Token JWT (`Authorization: Bearer <token>`)
 
-**Cabeçalhos/Cookies da Requisição**
-
-* Requer o envio do *cookie*: `refreshToken=<valor_do_token>`
-
-**Corpo da Requisição**
-
-* Vazio.
-
 **Respostas Esperadas**
 
-* `204 No Content`: Logout realizado com sucesso.
-* **Cabeçalhos da Resposta:** Remove o cookie `refreshToken`.
-
-
-* `401 Unauthorized`: Usuário não autenticado ou *cookie* ausente.
-* `400 / 422`: Erro no processamento ou invalidação do token no banco de dados.
+* `204 No Content`: Logout realizado com sucesso e Cookie excluído.
+* `401 Unauthorized`: Token JWT ausente ou inválido.
 
 ---
 
-### 4. Atualizar Senha
+### 4. Solicitar Recuperação de Senha (Esqueci minha senha)
 
-Permite que o usuário autenticado altere sua própria senha de acesso.
+Inicia o fluxo de recuperação de senha. Para evitar ataques de enumeração (onde hackers descobrem quem é cliente tentando e-mails aleatórios), a API **sempre retorna a mesma mensagem de sucesso**, independentemente de o e-mail existir ou não na base de dados.
 
 * **Método:** `PUT`
-* **Rota:** `/api/Auth/me`
-* **Autenticação:** Requer Token JWT (`Authorization: Bearer <token>`)
-* **Rate Limit:** Aplicado (Política `auth`)
+* **Rota:** `/api/Auth/forgot-password`
+* **Autenticação:** Nenhuma (`AllowAnonymous`)
+* **Proteção:** Rate Limiting (`auth`)
 
 **Corpo da Requisição (JSON)**
-*(A estrutura exata depende do seu `RequestUpdatePassword`)*
 
 ```json
 {
-  "currentPassword": "SenhaAntiga123!",
-  "newPassword": "NovaSenhaSegura456!"
+  "email": "cliente@email.com"
+}
+
+```
+
+**Respostas Esperadas**
+
+* `200 OK`: Solicitação recebida. Se o e-mail for válido, um link de recuperação será enviado via e-mail (Resend).
+
+---
+
+### 5. Redefinir Senha (Reset)
+
+Conclui o fluxo de recuperação utilizando o token de segurança enviado para o e-mail do usuário.
+
+* **Método:** `POST`
+* **Rota:** `/api/Auth/reset-password`
+* **Autenticação:** Nenhuma (`AllowAnonymous`)
+* **Proteção:** Rate Limiting (`auth`)
+
+**Corpo da Requisição (JSON)**
+
+```json
+{
+  "token": "dGVzdGUtdG9rZW4tc2VndXJhbmNh...",
+  "newPassword": "NovaSenhaForte123!"
+}
+
+```
+
+**Respostas Esperadas**
+
+* `200 OK`: Senha redefinida com sucesso.
+* `400 Bad Request`: Token inválido, expirado, ou a nova senha não atinge os critérios de segurança mínimos (6 caracteres).
+
+---
+
+### 6. Alterar Senha Atual (Perfil do Usuário)
+
+Permite que o usuário logado altere sua própria senha, exigindo a confirmação da senha atual por segurança.
+
+* **Método:** `PUT`
+* **Rota:** `/api/Auth/update-password/me`
+* **Autenticação:** Requer Token JWT (`Authorization: Bearer <token>`)
+* **Proteção:** Rate Limiting (`auth`)
+
+**Corpo da Requisição (JSON)**
+
+```json
+{
+  "currentPassword": "SenhaAntiga123",
+  "newPassword": "NovaSenhaMaisForte456",
+  "confirmNewPassword": "NovaSenhaMaisForte456"
 }
 
 ```
@@ -135,9 +139,8 @@ Permite que o usuário autenticado altere sua própria senha de acesso.
 **Respostas Esperadas**
 
 * `204 No Content`: Senha atualizada com sucesso.
-* `400 Bad Request`: Erro de validação nos campos (ex: nova senha não atende aos requisitos) ou senha atual incorreta (dependendo da regra de negócio de mensagens).
-* `401 Unauthorized`: Token JWT ausente ou expirado.
-
+* `400 Bad Request`: Validação de senhas incompatíveis (A confirmação está diferente da nova senha) ou regras de segurança não atendidas.
+* `401 Unauthorized`: A `currentPassword` (senha atual) fornecida está incorreta.
 --- 
 
 ## Módulo: Usuários (`/api/User`)
@@ -427,9 +430,6 @@ Retorna uma lista paginada do catálogo de serviços. A resposta varia de acordo
 
 ```
 
-
-
-
 * `401 Unauthorized`: Token ausente ou inválido.
 
 ---
@@ -566,13 +566,13 @@ Remove permanentemente o registro do catálogo (Hard Delete). *Nota: Idealmente 
 
 ## Módulo: Solicitações de Serviço (`/api/ServiceRequest`)
 
-Este módulo gerencia o coração da plataforma: o ciclo de vida das ordens de serviço de manutenção. Ele orquestra a comunicação entre Clientes (que abrem os chamados) e Técnicos (que assumem, diagnosticam e finalizam os serviços), garantindo o rastreio rigoroso do histórico de alterações.
+Este módulo gerencia o coração da plataforma: o ciclo de vida das ordens de serviço (OS) de manutenção. Ele orquestra a comunicação entre Clientes (que abrem os chamados) e Técnicos (que assumem, diagnosticam e finalizam os serviços). O fluxo garante o rastreio rigoroso do histórico, geração de documentos em PDF e disparos de notificações por e-mail, mantendo a proteção de dados (BOLA) entre os diferentes perfis.
 
 ---
 
-### 1. Criar Solicitação de Serviço
+### 1. Criar Solicitação de Serviço (Fase 1: Abertura)
 
-Abre uma nova ordem de serviço na plataforma vinculada ao cliente autenticado. A solicitação entra automaticamente no status inicial (`Criada`).
+Abre uma nova ordem de serviço na plataforma vinculada ao cliente autenticado. A solicitação entra automaticamente no status inicial (`Created`). Neste momento, o cliente informa apenas o aparelho e o sintoma.
 
 * **Método:** `POST`
 * **Rota:** `/api/ServiceRequest`
@@ -584,11 +584,7 @@ Abre uma nova ordem de serviço na plataforma vinculada ao cliente autenticado. 
 {
   "equipmentType": 1, 
   "brandModel": "Notebook Dell Inspiron 15",
-  "reportedProblem": "A tela está piscando e o teclado parou de funcionar.",
-  "technicalDiagnosis": "",
-  "partsCost": 0,
-  "requiresDownPayment": false,
-  "serviceIds": [1, 2]
+  "reportedProblem": "A tela está piscando e o teclado parou de funcionar."
 }
 
 ```
@@ -596,9 +592,9 @@ Abre uma nova ordem de serviço na plataforma vinculada ao cliente autenticado. 
 **Respostas Esperadas**
 
 * `201 Created`: Serviço criado com sucesso. Retorna os dados da solicitação recém-gerada, incluindo o ID e o Número de Protocolo.
-* `400 / 422`: Erro de validação (ex: nenhum serviço selecionado, modelo em branco).
+* `400 / 422`: Erro de validação (ex: modelo ou problema em branco).
 * `401 Unauthorized`: Token ausente ou inválido.
-* `409 Conflict`: Conflito na geração do protocolo (Raro).
+* `409 Conflict`: Conflito na geração do protocolo (Tratado automaticamente por retry interno).
 
 ---
 
@@ -612,9 +608,11 @@ Retorna uma lista paginada de solicitações de serviço pertencentes **exclusiv
 
 **Parâmetros de Busca (Query Strings)**
 
-* `status` (int, opcional): Filtra pelo status do serviço (ex: 0 = Criado, 1 = Em Progresso).
+* `status` (int, opcional): Filtra pelo status do serviço (ex: 0 = Created, 1 = InProgress, 2 = Finished).
 * `protocol` (string, opcional): Busca pelo número do protocolo gerado.
 * `createdAt` (date, opcional): Filtra pela data de abertura.
+* `equipmentType` (int, opcional): Filtra por tipo de equipamento.
+* `partsCost` (decimal, opcional): Filtra pelo custo de peças.
 * `page` / `pageSize` (int): Controle de paginação (Padrão: 1 e 20).
 * `sortBy` / `sortDirection`: Ordenação (Padrão: `createdAt` desc).
 
@@ -633,10 +631,6 @@ Lista solicitações recém-criadas na plataforma que ainda **não foram atribu�
 * **Rota:** `/api/ServiceRequest/newly`
 * **Autenticação:** Requer Token JWT com privilégio Técnico (`Policy: Technician`)
 
-**Parâmetros de Busca**
-
-* Aceita os mesmos parâmetros de paginação e filtros da listagem padrão.
-
 **Respostas Esperadas**
 
 * `200 OK`: Lista de requisições na fila de triagem.
@@ -652,20 +646,16 @@ Retorna os dados completos de uma ordem de serviço. Possui proteção de dados 
 * **Rota:** `/api/ServiceRequest/{id}`
 * **Autenticação:** Requer Token JWT (`Authorization: Bearer <token>`)
 
-**Parâmetros de Rota**
-
-* `id` (GUID): O identificador único da solicitação.
-
 **Respostas Esperadas**
 
-* `200 OK`: Retorna os dados completos, incluindo serviços atrelados, custos e técnico responsável.
+* `200 OK`: Retorna os dados completos, incluindo serviços atrelados (IDs), custos e técnico responsável.
 * `404 Not Found`: Serviço não encontrado **ou** o serviço pertence a outro cliente (ocultação por segurança).
 
 ---
 
-### 5. Atualizar Dados Técnicos (Orçamento) (Restrito)
+### 5. Atualizar Dados Técnicos / Orçamento (Restrito)
 
-Permite que o técnico responsável insira ou altere o diagnóstico técnico e os valores cobrados (mão de obra e peças extras).
+Permite que o técnico responsável insira ou altere o laudo técnico, o custo de peças e a lista de serviços executados. Este endpoint utiliza a técnica de **Snapshot/Reconciliação** para os `ServiceIds` (adiciona os novos, remove os ausentes e mantém os que já existiam).
 
 * **Método:** `PUT`
 * **Rota:** `/api/ServiceRequest/{id}`
@@ -675,16 +665,17 @@ Permite que o técnico responsável insira ou altere o diagnóstico técnico e o
 
 ```json
 {
-  "technicalDiagnosis": "Constatada oxidação na placa e rompimento do flat cable.",
-  "partsCost": 230.50
+  "technicalDiagnosis": "Constatada oxidação na placa e necessidade de troca de capacitor.",
+  "partsCost": 150.00,
+  "serviceIds": [1, 3]
 }
 
 ```
 
 **Respostas Esperadas**
 
-* `200 OK`: Dados técnicos e financeiros atualizados com sucesso.
-* `400 Bad Request`: Valores de custo negativos.
+* `200 OK`: Dados técnicos e lista de serviços atualizados com sucesso.
+* `400 Bad Request`: Valores negativos ou array de serviços vazio.
 * `403 Forbidden`: Usuário não é técnico.
 * `404 Not Found`: Solicitação não encontrada.
 
@@ -692,7 +683,7 @@ Permite que o técnico responsável insira ou altere o diagnóstico técnico e o
 
 ### 6. Fluxo: Aceitar Solicitação (Restrito)
 
-Técnico assume a responsabilidade por uma solicitação aberta. Altera o status de `Criada` para `Em Progresso` e vincula o `TechnicianId`.
+Técnico assume a responsabilidade por uma solicitação da fila. Altera o status para `InProgress` e vincula o `TechnicianId`.
 
 * **Método:** `PUT`
 * **Rota:** `/api/ServiceRequest/{id}/accept`
@@ -701,14 +692,26 @@ Técnico assume a responsabilidade por uma solicitação aberta. Altera o status
 **Respostas Esperadas**
 
 * `200 OK`: Solicitação aceita e status atualizado.
-* `400 Bad Request`: Regra de negócio violada (ex: O serviço não está mais com status "Criada").
-* `404 Not Found`: Solicitação não encontrada.
 
 ---
 
-### 7. Fluxo: Rejeitar Solicitação (Restrito)
+### 7. Fluxo: Aprovar Orçamento (Cliente)
 
-Técnico recusa uma solicitação recém-criada (ex: equipamento não suportado, dados inválidos). Muda o status para `Rejeitada`.
+O Cliente confirma a aprovação do orçamento elaborado pelo técnico. O sistema captura internamente o IP e o User-Agent do cliente para fins de auditoria (assinatura digital simplificada).
+
+* **Método:** `PUT`
+* **Rota:** `/api/ServiceRequest/{id}/approve-budget`
+* **Autenticação:** Requer Token JWT (`Authorization: Bearer <token>`)
+
+**Respostas Esperadas**
+
+* `204 No Content`: Orçamento aprovado com sucesso.
+
+---
+
+### 8. Fluxo: Rejeitar Solicitação (Restrito)
+
+Técnico recusa uma solicitação (ex: equipamento não suportado). Muda o status para `Rejected`.
 
 * **Método:** `PUT`
 * **Rota:** `/api/ServiceRequest/{id}/reject`
@@ -717,13 +720,12 @@ Técnico recusa uma solicitação recém-criada (ex: equipamento não suportado,
 **Respostas Esperadas**
 
 * `200 OK`: Solicitação rejeitada com sucesso.
-* `400 Bad Request`: Regra de negócio violada (Só pode rejeitar chamados com status "Criada").
 
 ---
 
-### 8. Fluxo: Finalizar Serviço (Restrito)
+### 9. Fluxo: Finalizar Serviço (Restrito)
 
-Técnico conclui o trabalho executado no equipamento. Altera o status de `Em Progresso` para `Finalizada`.
+Técnico conclui o trabalho executado no equipamento na bancada. Altera o status para `Finished`.
 
 * **Método:** `PUT`
 * **Rota:** `/api/ServiceRequest/{id}/finish`
@@ -732,13 +734,12 @@ Técnico conclui o trabalho executado no equipamento. Altera o status de `Em Pro
 **Respostas Esperadas**
 
 * `200 OK`: Ordem de serviço finalizada.
-* `400 Bad Request`: Regra de negócio violada (Só é possível finalizar serviços que estejam "Em Progresso").
 
 ---
 
-### 9. Fluxo: Cancelar Serviço
+### 10. Fluxo: Cancelar Serviço
 
-Permite o cancelamento da ordem de serviço. Segue a regra de negócio do domínio: só é possível cancelar se o técnico ainda não tiver iniciado o trabalho.
+Permite o cancelamento da ordem de serviço. Apenas possível se o trabalho ainda não tiver sido concluído.
 
 * **Método:** `PUT`
 * **Rota:** `/api/ServiceRequest/{id}/cancel`
@@ -747,40 +748,58 @@ Permite o cancelamento da ordem de serviço. Segue a regra de negócio do domín
 **Respostas Esperadas**
 
 * `200 OK`: Solicitação cancelada.
-* `400 Bad Request`: Regra de negócio violada (ex: Tentativa de cancelar um serviço já "Em Progresso" ou "Finalizado").
-* `404 Not Found`: Solicitação não encontrada ou pertencente a outro cliente.
 
 ---
 
-### 10. Obter Linha do Tempo (Histórico / Timeline)
+### 11. Obter Linha do Tempo (Timeline)
 
-Recupera o histórico imutável de transições de status da solicitação, ideal para exibir um rastreador visual (estilo entrega de correios) para o cliente.
+Recupera o histórico imutável de transições de status da solicitação. Ideal para exibir um rastreador visual estilo "correios" para o cliente.
 
 * **Método:** `GET`
-* **Rota:** `/api/ServiceRequest/timeline/{serviceRequestId}`
+* **Rota:** `/api/ServiceRequest/timeline/{id}`
 * **Autenticação:** Requer Token JWT (`Authorization: Bearer <token>`)
 
 **Respostas Esperadas**
 
-* `200 OK`: Retorna um array cronológico contendo os registros de histórico.
-* **Corpo:**
-```json
-[
-  {
-    "status": 0,
-    "description": "Solicitação criada com sucesso.",
-    "createdAt": "2024-05-20T10:00:00Z"
-  },
-  {
-    "status": 1,
-    "description": "Técnico assumiu a solicitação de serviço.",
-    "createdAt": "2024-05-20T11:30:00Z"
-  }
-]
+* `200 OK`: Retorna um array cronológico contendo os registros de histórico e data das movimentações.
 
-```
+---
 
+### 12. Geração e Download de Documentos (PDF)
+
+Gera em tempo real os documentos legais da plataforma para download direto ou visualização no navegador.
+
+* **Baixar Orçamento (OS):**
+* `GET` `/api/ServiceRequest/{id}/download-os`
+* Gera o PDF com os dados técnicos e lista de serviços a executar.
+
+
+* **Baixar Recibo de Quitação:**
+* `GET` `/api/ServiceRequest/{id}/download-receipt`
+* Gera o PDF comprovando o serviço finalizado e pago.
 
 
 
-* `404 Not Found`: Solicitação não encontrada ou não pertence ao usuário requerente.
+**Respostas Esperadas**
+
+* `200 OK`: Retorna um arquivo binário do tipo `application/pdf`.
+
+---
+
+### 13. Notificações e Disparo de E-mails (Restrito)
+
+Envia proativamente os documentos em PDF para o e-mail cadastrado do cliente. Esses endpoints delegam o trabalho para o serviço de infraestrutura (Resend).
+
+* **Enviar Orçamento por E-mail:**
+* `PUT` `/api/ServiceRequest/{id}/send-os`
+* Utilizado após o técnico atualizar o orçamento (Endpoint 5).
+
+
+* **Enviar Recibo de Quitação por E-mail:**
+* `PUT` `/api/ServiceRequest/{id}/send-receipt`
+* Utilizado após a finalização do pagamento.
+
+
+    **Respostas Esperadas**
+
+* `204 No Content`: E-mail gerado, PDF anexado e disparado com sucesso para a caixa de entrada do cliente. Requer credenciais de Técnico.* `404 Not Found`: Solicitação não encontrada ou não pertence ao usuário requerente.
